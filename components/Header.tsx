@@ -2,7 +2,7 @@
 
 import { useTheme } from "@/components/ThemeContext";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, Globe2, Menu, Moon, Sun, UserCircle, X } from "lucide-react";
+import { ArrowLeft, Bell, ChevronDown, Globe2, Menu, Moon, Sun, UserCircle, X } from "lucide-react";
 import Logo from "@/components/Logo";
 import { navItems } from "@/lib/data";
 import { cn, formatDateTime } from "@/lib/utils";
@@ -21,6 +21,18 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("sasra-theme", dark ? "dark" : "light");
+  }, [dark]);
+
+  useEffect(() => {
+    setDark(localStorage.getItem("sasra-theme") === "dark");
+  }, []);
+
+  useEffect(() => {
+>>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
     const syncAuth = () => setLoggedIn(localStorage.getItem("sasra-user-logged-in") === "true");
     syncAuth();
     window.addEventListener("sasra-auth-changed", syncAuth);
@@ -63,7 +75,7 @@ export default function Header() {
       {navItems.map(([label, id]) => (
         <a
           key={id}
-          href={`#${id}`}
+          href={id === "home" ? "/" : id === "books" ? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
           onClick={() => setOpen(false)}
           className={cn(
             "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold",
@@ -87,9 +99,25 @@ export default function Header() {
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
         <div className="flex items-center justify-between gap-2 lg:justify-end">
+<<<<<<< HEAD
           <label
             title="Select Language"
              className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
+=======
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) window.history.back();
+              else window.location.href = "/";
+            }}
+            className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 transition hover:bg-gold hover:text-white dark:bg-white/10"
+            aria-label="Go back"
+            title="Back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <label className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
+>>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
             <Globe2 className="h-4 w-4" />
             <select className="bg-transparent outline-none" aria-label="Language selector">
               <option>English</option>

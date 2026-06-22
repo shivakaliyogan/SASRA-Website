@@ -1,5 +1,6 @@
 import AboutSection from "@/components/AboutSection";
 import AdminLink from "@/components/AdminLink";
+import BooksSection from "@/components/BooksSection";
 import ContactSection from "@/components/ContactSection";
 import DailyPanchangam from "@/components/DailyPanchangam";
 import Donations from "@/components/Donations";
@@ -17,6 +18,7 @@ import TempleCards from "@/components/TempleCards";
 export default function Home() {
   return (
     <main>
+<<<<<<< HEAD
   <Header />
 
   {/* HOME */}
@@ -56,5 +58,24 @@ export default function Home() {
   <AdminLink />
   <Footer />
 </main>
+=======
+      <Header />
+      <HeroSlider />
+      <SearchSection />
+      <AboutSection />
+      <TempleCards />
+      <PoojaBooking />
+      <DailyPanchangam />
+      <LiveSpiritual />
+      <Donations />
+      <BooksSection />
+      <Festivals />
+      <SpiritualKnowledge />
+      <Gallery />
+      <ContactSection />
+      <AdminLink />
+      <Footer />
+    </main>
+>>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
   );
 }

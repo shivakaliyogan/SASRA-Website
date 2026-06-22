@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import ThemeSync from "@/components/ThemeSync";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeContext";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
+          <ThemeSync />
           {children}
         </ThemeProvider>
       </body>

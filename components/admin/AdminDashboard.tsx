@@ -22,10 +22,81 @@ const adminRows = [
   { name: "Temple Office Admin", email: "office@sasra.org", role: "admin" as AdminRole, status: "Active" },
   { name: "Donation Desk", email: "donations@sasra.org", role: "donation_manager" as AdminRole, status: "Invited" }
 ];
+const panels = ["Dashboard", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
+const modulePanelMap: Record<string, string> = {
+  "Temple Management": "Temples",
+  "Festival Management": "Festivals",
+  "Spiritual Programs": "Programs",
+  "Gallery Management": "Gallery",
+  "Donation Management": "Donations",
+  "Books Management": "Books",
+  "Analytics": "Dashboard"
+};
+
+function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
+  const fields: Record<string, string[]> = {
+    Admins: ["Admin name", "Admin email", "Role / permission"],
+    Temples: ["Temple name", "Location", "Description"],
+    Festivals: ["Festival name", "Date", "Registration note"],
+    Programs: ["Program title", "Schedule", "Audio / video URL"],
+    Bookings: ["Devotee email", "Pooja name", "Booking status"],
+    Donations: ["Donor email", "Amount", "Payment status"],
+    Gallery: ["Album / category", "Caption", "Media URL"],
+    Books: ["Book type", "Book name", "Copies available"],
+    Receipts: ["User email", "Receipt type", "Receipt status"],
+    Users: ["User name", "Email", "Status"],
+    Contact: ["Message subject", "Reply note", "Status"],
+    Settings: ["Website setting", "Value", "Notes"]
+  };
+  const activeFields = fields[panel] || fields.Settings;
+
+  return (
+    <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{panel} Management</p>
+      <h3 className="mt-2 text-2xl font-bold">{panel === "Books" ? "Books" : panel}</h3>
+      <form
+        className="mt-5 grid gap-3 md:grid-cols-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          alert(`${panel} details are ready for database save.`);
+        }}
+      >
+        {activeFields.map((field, index) => (
+          <input key={field} required={index < 2} placeholder={field} className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+        ))}
+        {panel === "Books" && (
+          <div className="md:col-span-3 grid gap-3 md:grid-cols-2">
+            <input type="date" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Default lending start date" />
+            <input type="date" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Default lending end date" />
+          </div>
+        )}
+        {panel === "Receipts" && (
+          <input type="email" placeholder="Search receipts by user email" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+        )}
+        <button className="rounded-full bg-temple px-5 py-3 text-sm font-bold text-white md:col-span-3">Save {panel}</button>
+      </form>
+      <div className="mt-6 overflow-hidden rounded-2xl border border-gold/20">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-amber-50 text-temple dark:bg-white/10 dark:text-gold">
+            <tr><th className="p-3">Record</th><th className="p-3">Type</th><th className="p-3">Status</th></tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-gold/10">
+              <td className="p-3">{panel === "Books" ? "Bhagavad Gita" : `${panel} sample`}</td>
+              <td className="p-3">{panel === "Books" ? "Vedic Scripture" : "Management"}</td>
+              <td className="p-3">Ready</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
 
 export default function AdminDashboard() {
   const [dark, setDark] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [activePanel, setActivePanel] = useState("Dashboard");
   const [selectedRole, setSelectedRole] = useState<AdminRole>("admin");
   const [adminMessage, setAdminMessage] = useState("");
   const [logoMessage, setLogoMessage] = useState("");
@@ -59,8 +130,14 @@ export default function AdminDashboard() {
         <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-gold/20 bg-white/80 p-5 backdrop-blur-xl dark:bg-stone-900/80 lg:block">
           <h1 className="text-xl font-extrabold text-temple dark:text-gold">SASRA Admin</h1>
           <nav className="mt-8 grid gap-2">
-            {["Dashboard", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Users", "Contact", "Settings"].map((item) => (
-              <button key={item} className="rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-gold/15">{item}</button>
+            {panels.map((item) => (
+              <button
+                key={item}
+                onClick={() => setActivePanel(item)}
+                className={`rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-gold/15 ${activePanel === item ? "bg-gold text-white" : ""}`}
+              >
+                {item}
+              </button>
             ))}
           </nav>
         </aside>
@@ -79,6 +156,10 @@ export default function AdminDashboard() {
             </div>
           </header>
           <div className="p-4 md:p-8">
+            {activePanel !== "Dashboard" ? (
+              <ManagementPanel panel={activePanel} />
+            ) : (
+              <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {adminStats.map(({ label, value, icon: Icon, trend }) => (
                 <div key={label} className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
@@ -101,9 +182,26 @@ export default function AdminDashboard() {
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {adminModules.map(({ title, icon: Icon, actions }) => (
                 <section key={title} className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
-                  <Icon className="h-7 w-7 text-gold" />
-                  <h3 className="mt-3 text-xl font-bold">{title}</h3>
-                  <div className="mt-4 flex flex-wrap gap-2">{actions.map((action) => <button key={action} className="rounded-full bg-amber-50 px-3 py-2 text-xs font-bold dark:bg-white/10">{action}</button>)}</div>
+                  <button
+                    type="button"
+                    onClick={() => setActivePanel(modulePanelMap[title] || "Settings")}
+                    className="block w-full rounded-xl text-left transition hover:bg-amber-50/70 dark:hover:bg-white/5"
+                  >
+                    <Icon className="h-7 w-7 text-gold" />
+                    <h3 className="mt-3 text-xl font-bold">{title}</h3>
+                  </button>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {actions.map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        onClick={() => setActivePanel(action === "Receipts" ? "Receipts" : modulePanelMap[title] || "Settings")}
+                        className="rounded-full bg-amber-50 px-3 py-2 text-xs font-bold transition hover:bg-gold hover:text-white dark:bg-white/10"
+                      >
+                        {action}
+                      </button>
+                    ))}
+                  </div>
                 </section>
               ))}
             </div>
@@ -195,9 +293,20 @@ export default function AdminDashboard() {
               </section>
             </div>
             <div className="mt-6 rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
-              <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-xl font-bold">Security and Super Admin Controls</h3><button className="flex items-center gap-2 rounded-full bg-temple px-4 py-2 text-sm font-bold text-white"><UserPlus className="h-4 w-4" />Create Admin</button></div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-xl font-bold">Security and Super Admin Controls</h3>
+                <button
+                  type="button"
+                  onClick={() => setActivePanel("Admins")}
+                  className="flex items-center gap-2 rounded-full bg-temple px-4 py-2 text-sm font-bold text-white"
+                >
+                  <UserPlus className="h-4 w-4" />Create Admin
+                </button>
+              </div>
               <div className="mt-4 grid gap-3 md:grid-cols-3">{["Role-Based Access Control", "Admin Audit Logs", "Two-Factor Authentication", "Encrypted User Data", "Backup & Restore", "SEO and Payment Settings"].map((item) => <p key={item} className="flex items-center gap-2 rounded-xl bg-lotus p-3 text-sm font-semibold dark:bg-white/10"><ShieldCheck className="h-4 w-4 text-gold" />{item}</p>)}</div>
             </div>
+              </>
+            )}
           </div>
         </section>
       </div>
