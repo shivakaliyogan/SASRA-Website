@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/components/ThemeContext";
 import { useEffect, useState } from "react";
 import { Bell, ChevronDown, Globe2, Menu, Moon, Sun, UserCircle, X } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -8,21 +9,16 @@ import { cn, formatDateTime } from "@/lib/utils";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [profile, setProfile] = useState(false);
-  const [dark, setDark] = useState(false);
-  const [now, setNow] = useState<Date | null>(null);
+  const [profile, setProfile] = useState(false);  const [now, setNow] = useState<Date | null>(null);
   const [active, setActive] = useState("home");
   const [loggedIn, setLoggedIn] = useState(false);
+  const { dark, toggleTheme } = useTheme();
 
   useEffect(() => {
     setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
 
   useEffect(() => {
     const syncAuth = () => setLoggedIn(localStorage.getItem("sasra-user-logged-in") === "true");
@@ -36,17 +32,31 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      const match = navItems
-        .map(([, id]) => document.getElementById(id))
-        .filter(Boolean)
-        .findLast((el) => el && el.getBoundingClientRect().top < 160);
-      if (match?.id) setActive(match.id);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const onScroll = () => {
+    const sections = navItems
+      .map(([, id]) => document.getElementById(id))
+      .filter(Boolean);
+
+    let currentSection = "home";
+
+    sections.forEach((section) => {
+      const rect = section!.getBoundingClientRect();
+
+      if (rect.top <= 150 && rect.bottom >= 150) {
+        currentSection = section!.id;
+      }
+    });
+
+    setActive(currentSection);
+  };
+
+  window.addEventListener("scroll", onScroll);
+  onScroll();
+
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+  };
+}, []);
 
   const nav = (
     <nav className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-1" aria-label="Primary">
@@ -67,7 +77,7 @@ export default function Header() {
   );
 
   return (
-    <header id="home" className="sticky top-0 z-50 border-b border-amber-200/70 bg-lotus/90 backdrop-blur-xl dark:border-white/10 dark:bg-stone-950/90">
+    <header className="sticky top-0 z-50 border-b border-amber-200/70 bg-lotus/90 backdrop-blur-xl dark:border-white/10 dark:bg-stone-950/90">
       <div className="container-x grid gap-3 py-3 lg:grid-cols-[1fr_0.9fr_1fr] lg:items-center">
         <Logo />
         <div className="min-w-0 overflow-hidden rounded-full border border-gold/30 bg-white/70 px-4 py-2 text-center text-sm dark:bg-white/10">
@@ -77,7 +87,9 @@ export default function Header() {
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
         <div className="flex items-center justify-between gap-2 lg:justify-end">
-          <label className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
+          <label
+            title="Select Language"
+             className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
             <Globe2 className="h-4 w-4" />
             <select className="bg-transparent outline-none" aria-label="Language selector">
               <option>English</option>
@@ -85,15 +97,25 @@ export default function Header() {
               <option>Hindi</option>
             </select>
           </label>
-          <button onClick={() => setDark((v) => !v)} className="grid h-10 w-10 place-items-center rounded-full bg-gold text-white" aria-label="Toggle dark mode">
-            {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          <button
+            title={dark ? "Light Mode" : "Dark Mode"}
+            onClick={toggleTheme}
+            className="grid h-10 w-10 place-items-center rounded-full bg-gold text-white"
+            aria-label="Toggle dark mode">
+           {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
-          <button className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 dark:bg-white/10" aria-label="Temple bell sound">
+          <button
+             title="Notifications"
+              className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 dark:bg-white/10"
+              aria-label="Temple bell sound"> 
             <Bell className="h-5 w-5" />
           </button>
           <div className="relative">
-            <button onClick={() => setProfile((v) => !v)} className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white" aria-haspopup="menu">
-              <UserCircle className="h-5 w-5" />
+          <button
+            title="Profile"
+            onClick={() => setProfile((v) => !v)}
+            className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
+            aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
               <ChevronDown className="h-4 w-4" />
             </button>
             {profile && (
@@ -119,8 +141,11 @@ export default function Header() {
               </div>
             )}
           </div>
-          <button onClick={() => setOpen((v) => !v)} className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 lg:hidden" aria-label="Open menu">
-            {open ? <X /> : <Menu />}
+          <button
+            title={open ? "Close Menu" : "Open Menu"}
+            onClick={() => setOpen((v) => !v)}
+            className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 lg:hidden"
+            aria-label="Open menu">            {open ? <X /> : <Menu />}
           </button>
         </div>
       </div>

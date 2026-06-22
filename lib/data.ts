@@ -3,9 +3,10 @@ import { BarChart3, Bell, BookOpen, CalendarDays, HandCoins, Image as ImageIcon,
 export const navItems = [
   ["Home", "home"],
   ["About Ashramam", "about"],
+  ["Spiritual Programs", "spiritual-programs"],
   ["Temples", "temples"],
   ["Festivals", "festivals"],
-  ["Spiritual Programs", "programs"],
+  ["Pooja Booking", "programs"],
   ["Gallery", "gallery"],
   ["Donations", "donations"],
   ["Contact Us", "contact"]

@@ -17,21 +17,44 @@ import TempleCards from "@/components/TempleCards";
 export default function Home() {
   return (
     <main>
-      <Header />
-      <HeroSlider />
-      <SearchSection />
-      <AboutSection />
-      <TempleCards />
-      <PoojaBooking />
-      <DailyPanchangam />
-      <LiveSpiritual />
-      <Donations />
-      <Festivals />
-      <SpiritualKnowledge />
-      <Gallery />
-      <ContactSection />
-      <AdminLink />
-      <Footer />
-    </main>
+  <Header />
+
+  {/* HOME */}
+  <section id="home">
+  <HeroSlider />
+  <SearchSection />
+  </section>
+
+  {/* ABOUT ASHRAMAM */}
+  <AboutSection />
+
+  {/* SPIRITUAL PROGRAMS */}
+<section id="spiritual-programs">
+  <DailyPanchangam />
+  <LiveSpiritual />
+  <SpiritualKnowledge />
+</section>
+
+  {/* TEMPLES */}
+  <TempleCards />
+
+  {/* FESTIVALS */}
+  <Festivals />
+
+  {/* POOJA BOOKING */}
+  <PoojaBooking />
+
+  {/* GALLERY */}
+  <Gallery />
+
+  {/* DONATIONS */}
+  <Donations />
+
+  {/* CONTACT */}
+  <ContactSection />
+
+  <AdminLink />
+  <Footer />
+</main>
   );
 }

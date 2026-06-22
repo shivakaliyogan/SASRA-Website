@@ -3,8 +3,8 @@ import { panchangam } from "@/lib/data";
 
 export default function DailyPanchangam() {
   return (
-    <section className="section bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-stone-900 dark:via-stone-950 dark:to-black">
-      <div className="container-x glass rounded-3xl p-8">
+    <section
+      className="section bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-stone-900 dark:via-stone-950 dark:to-black">      <div className="container-x glass rounded-3xl p-8">
         <div className="mb-7 flex items-center gap-3">
           <CalendarDays className="h-8 w-8 text-gold" />
           <div>
