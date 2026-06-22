@@ -17,65 +17,48 @@ import TempleCards from "@/components/TempleCards";
 
 export default function Home() {
   return (
-    <main>
-<<<<<<< HEAD
-  <Header />
+  <main>
+    <Header />
 
-  {/* HOME */}
-  <section id="home">
-  <HeroSlider />
-  <SearchSection />
-  </section>
-
-  {/* ABOUT ASHRAMAM */}
-  <AboutSection />
-
-  {/* SPIRITUAL PROGRAMS */}
-<section id="spiritual-programs">
-  <DailyPanchangam />
-  <LiveSpiritual />
-  <SpiritualKnowledge />
-</section>
-
-  {/* TEMPLES */}
-  <TempleCards />
-
-  {/* FESTIVALS */}
-  <Festivals />
-
-  {/* POOJA BOOKING */}
-  <PoojaBooking />
-
-  {/* GALLERY */}
-  <Gallery />
-
-  {/* DONATIONS */}
-  <Donations />
-
-  {/* CONTACT */}
-  <ContactSection />
-
-  <AdminLink />
-  <Footer />
-</main>
-=======
-      <Header />
+    {/* HOME */}
+    <section id="home">
       <HeroSlider />
       <SearchSection />
-      <AboutSection />
-      <TempleCards />
-      <PoojaBooking />
+    </section>
+
+    {/* ABOUT ASHRAMAM */}
+    <AboutSection />
+
+    {/* TEMPLES */}
+    <TempleCards />
+
+    {/* POOJA BOOKING */}
+    <PoojaBooking />
+
+    {/* SPIRITUAL PROGRAMS */}
+    <section id="spiritual-programs">
       <DailyPanchangam />
       <LiveSpiritual />
-      <Donations />
-      <BooksSection />
-      <Festivals />
       <SpiritualKnowledge />
-      <Gallery />
-      <ContactSection />
-      <AdminLink />
-      <Footer />
-    </main>
->>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
-  );
+    </section>
+
+    {/* DONATIONS */}
+    <Donations />
+
+    {/* BOOKS */}
+    <BooksSection />
+
+    {/* FESTIVALS */}
+    <Festivals />
+
+    {/* GALLERY */}
+    <Gallery />
+
+    {/* CONTACT */}
+    <ContactSection />
+
+    <AdminLink />
+    <Footer />
+  </main>
+);
 }

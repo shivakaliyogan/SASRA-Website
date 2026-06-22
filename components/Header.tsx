@@ -21,18 +21,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("sasra-theme", dark ? "dark" : "light");
-  }, [dark]);
-
-  useEffect(() => {
-    setDark(localStorage.getItem("sasra-theme") === "dark");
-  }, []);
-
-  useEffect(() => {
->>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
     const syncAuth = () => setLoggedIn(localStorage.getItem("sasra-user-logged-in") === "true");
     syncAuth();
     window.addEventListener("sasra-auth-changed", syncAuth);
@@ -99,12 +87,8 @@ export default function Header() {
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
         <div className="flex items-center justify-between gap-2 lg:justify-end">
-<<<<<<< HEAD
-          <label
-            title="Select Language"
-             className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
-=======
-          <button
+
+                    <button
             type="button"
             onClick={() => {
               if (window.history.length > 1) window.history.back();
@@ -116,8 +100,10 @@ export default function Header() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <label className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
->>>>>>> 1abc75e91d31e635e63fc51a4d4b96517e78b10b
+
+          <label
+            title="Select Language"
+            className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
             <Globe2 className="h-4 w-4" />
             <select className="bg-transparent outline-none" aria-label="Language selector">
               <option>English</option>
