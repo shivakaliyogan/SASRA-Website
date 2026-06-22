@@ -1,5 +1,6 @@
 import AboutSection from "@/components/AboutSection";
 import AdminLink from "@/components/AdminLink";
+import BooksSection from "@/components/BooksSection";
 import ContactSection from "@/components/ContactSection";
 import DailyPanchangam from "@/components/DailyPanchangam";
 import Donations from "@/components/Donations";
@@ -26,6 +27,7 @@ export default function Home() {
       <DailyPanchangam />
       <LiveSpiritual />
       <Donations />
+      <BooksSection />
       <Festivals />
       <SpiritualKnowledge />
       <Gallery />

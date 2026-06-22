@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { KeyRound, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
 
 type AuthMode = "login" | "signup";
 
 export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaultMode?: AuthMode }>) {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [message, setMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -77,6 +79,7 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
                 localStorage.setItem("sasra-user-logged-in", "true");
                 window.dispatchEvent(new Event("sasra-auth-changed"));
                 setMessage("Login successful. JWT authentication is ready for database connection.");
+                router.push("/");
                 return;
               }
               if (!otpSent) {
@@ -92,6 +95,7 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
               localStorage.setItem("sasra-user-logged-in", "true");
               window.dispatchEvent(new Event("sasra-auth-changed"));
               setMessage("Mobile number verified and account created. SMS OTP gateway is ready for production integration.");
+              router.push("/");
             }}
           >
             {!isLogin && (

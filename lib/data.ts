@@ -8,6 +8,8 @@ export const navItems = [
   ["Spiritual Programs", "programs"],
   ["Gallery", "gallery"],
   ["Donations", "donations"],
+  ["Books", "books"],
+  ["Receipts", "receipts"],
   ["Contact Us", "contact"]
 ] as const;
 
@@ -118,7 +120,8 @@ export const adminModules = [
   { title: "Spiritual Programs", icon: Music, actions: ["Schedule Events", "Manage Registrations", "Upload Images", "Edit Programs"] },
   { title: "Gallery Management", icon: ImageIcon, actions: ["Upload Media", "Create Albums", "Filter Categories", "Delete Media"] },
   { title: "Donation Management", icon: HandCoins, actions: ["Verify Payments", "Receipts", "Reports", "Payment History"] },
+  { title: "Books Management", icon: BookOpen, actions: ["Add Type", "Add Book", "Lending Dates", "Borrower Receipts"] },
   { title: "Analytics", icon: BarChart3, actions: ["Visitors", "Donations", "Growth", "Popular Pages"] }
 ];
 
-export const searchIndex = [...temples.map((item) => item.name), ...poojas, ...festivals.map((item) => item.name), "Bhajans", "Discourses", "Stotras", "Razorpay Donations"];
+export const searchIndex = [...temples.map((item) => item.name), ...poojas, ...festivals.map((item) => item.name), "Books", "Bhagavad Gita", "Vishnu Sahasranamam", "Receipts", "Bhajans", "Discourses", "Stotras", "Razorpay Donations"];
