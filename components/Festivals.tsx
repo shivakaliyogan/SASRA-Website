@@ -17,8 +17,8 @@ export default function Festivals() {
                 <h3 className="mt-4 text-xl font-bold">{festival.name}</h3>
                 <time className="mt-2 block text-sm text-gold">{new Date(festival.date).toLocaleDateString("en-IN", { dateStyle: "full" })}</time>
                 <p className="mt-3 text-sm leading-6 text-stone-600 dark:text-stone-300">{festival.description}</p>
-                <button className="mt-5 rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-white">Register</button>
-              </div>
+                <a href={`/festival-registration?festival=${encodeURIComponent(festival.name)}`} className="mt-5 inline-block rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-white">Register</a>
+               </div>
             </article>
           ))}
         </div>
