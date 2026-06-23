@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { MapPin } from "lucide-react";
 import { temples } from "@/lib/data";
@@ -23,7 +24,9 @@ export default function TempleCards() {
                 <h3 className="text-xl font-bold">{temple.name}</h3>
                 <p className="mt-2 flex items-center gap-2 text-sm text-gold"><MapPin className="h-4 w-4" />{temple.location}</p>
                 <p className="mt-4 text-sm leading-6 text-stone-600 dark:text-stone-300">{temple.description}</p>
-                <button className="mt-5 rounded-full bg-temple px-5 py-2.5 text-sm font-bold text-white">View Details</button>
+                <Link
+                  href={`/temples/${temple.slug}`}
+                  className="mt-5 inline-block rounded-full bg-temple px-5 py-2.5 text-sm font-bold text-white"> View Details</Link>
               </div>
             </article>
           ))}

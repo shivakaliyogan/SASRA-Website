@@ -34,22 +34,22 @@ export const heroSlides = [
 
 export const temples = [
   {
+    slug: "adhinarayana",
     name: "Sri Adhinarayana Swamy Temple",
     location: "Main Ashramam Campus",
-    image: "https://images.unsplash.com/photo-1609946860441-a51ffcf22208?auto=format&fit=crop&w=900&q=80",
-    description: "The principal shrine devoted to divine guidance, meditation and daily archana."
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=900&q=80",    description: "The principal shrine devoted to divine guidance, meditation and daily archana."
   },
   {
+    slug: "lakshmi-ammavari",
     name: "Sri Lakshmi Ammavari Mandiram",
     location: "East Prakaram",
-    image: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=900&q=80",
-    description: "A peaceful sanctum for prosperity, compassion and family prayers."
+    image: "https://images.unsplash.com/photo-1715876722520-02ccc9248dab?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
-    name: "Navagraha Peetham",
+    slug: "navagraha-peetham",
+    name: "navagraha Peetham",
     location: "Temple Garden",
-    image: "https://images.unsplash.com/photo-1591523364772-755261d60f9b?auto=format&fit=crop&w=900&q=80",
-    description: "Dedicated to planetary harmony with weekly special poojas."
+    image: "https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=900&q=80",      description: "Dedicated to planetary harmony with weekly special poojas."
   }
 ];
 
@@ -68,19 +68,19 @@ export const festivals = [
   {
     name: "Guru Purnima Mahotsavam",
     date: "2026-07-29T06:00:00",
-    image: "https://images.unsplash.com/photo-1604152135912-04a022e23696?auto=format&fit=crop&w=1000&q=80",
+    image: "https://images.unsplash.com/photo-1662596558814-c5f3c55deba3?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8R3VydSUyMFB1cm5pbWElMjBNYWhvdHNhdmFtfGVufDB8fDB8fHww",
     description: "Paduka pooja, bhajans, pravachanam and annadanam."
   },
   {
     name: "Sri Krishna Janmashtami",
     date: "2026-09-04T18:00:00",
-    image: "https://images.unsplash.com/photo-1605379399843-5870eea9b74e?auto=format&fit=crop&w=1000&q=80",
+    image: "https://images.unsplash.com/photo-1641730259879-ad98e7db7bcb?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8U3JpJTIwS3Jpc2huYSUyMEphbm1hc2h0YW1pfGVufDB8fDB8fHww",
     description: "Evening alankaram, devotional music and midnight harathi."
   },
   {
     name: "Karthika Deepotsavam",
     date: "2026-11-24T17:30:00",
-    image: "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?auto=format&fit=crop&w=1000&q=80",
+    image: "https://images.unsplash.com/photo-1713922548844-82c63df42ac3?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fEthcnRoaWthJTIwRGVlcG90c2F2YW18ZW58MHx8MHx8fDA%3D",
     description: "Temple lighting, deepa seva and community prayers."
   }
 ];

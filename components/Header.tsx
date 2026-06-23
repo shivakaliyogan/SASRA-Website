@@ -9,7 +9,8 @@ import { cn, formatDateTime } from "@/lib/utils";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [profile, setProfile] = useState(false);  const [now, setNow] = useState<Date | null>(null);
+  const [profile, setProfile] = useState(false);
+const [notifications, setNotifications] = useState(false);  const [now, setNow] = useState<Date | null>(null);
   const [active, setActive] = useState("home");
   const [loggedIn, setLoggedIn] = useState(false);
   const { dark, toggleTheme } = useTheme();
@@ -63,7 +64,7 @@ export default function Header() {
       {navItems.map(([label, id]) => (
         <a
           key={id}
-          href={id === "home" ? "/" : id === "books" ? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
+          href={ id === "books"? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
           onClick={() => setOpen(false)}
           className={cn(
             "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold",

@@ -1,6 +1,5 @@
 import AboutSection from "@/components/AboutSection";
 import AdminLink from "@/components/AdminLink";
-import BooksSection from "@/components/BooksSection";
 import ContactSection from "@/components/ContactSection";
 import DailyPanchangam from "@/components/DailyPanchangam";
 import Donations from "@/components/Donations";
@@ -18,47 +17,44 @@ import TempleCards from "@/components/TempleCards";
 export default function Home() {
   return (
   <main>
-    <Header />
+  <Header />
 
-    {/* HOME */}
-    <section id="home">
-      <HeroSlider />
-      <SearchSection />
-    </section>
+  {/* HOME */}
+  <section id="home">
+    <HeroSlider />
+    <SearchSection />
+  </section>
 
-    {/* ABOUT ASHRAMAM */}
-    <AboutSection />
+  {/* ABOUT ASHRAMAM */}
+  <AboutSection />
 
-    {/* TEMPLES */}
-    <TempleCards />
+  {/* SPIRITUAL PROGRAMS */}
+  <section id="spiritual-programs">
+    <DailyPanchangam />
+    <LiveSpiritual />
+    <SpiritualKnowledge />
+  </section>
 
-    {/* POOJA BOOKING */}
-    <PoojaBooking />
+  {/* TEMPLES */}
+  <TempleCards />
 
-    {/* SPIRITUAL PROGRAMS */}
-    <section id="spiritual-programs">
-      <DailyPanchangam />
-      <LiveSpiritual />
-      <SpiritualKnowledge />
-    </section>
+  {/* FESTIVALS */}
+  <Festivals />
 
-    {/* DONATIONS */}
-    <Donations />
+  {/* POOJA BOOKING */}
+  <PoojaBooking />
 
-    {/* BOOKS */}
-    <BooksSection />
+  {/* GALLERY */}
+  <Gallery />
 
-    {/* FESTIVALS */}
-    <Festivals />
+  {/* DONATIONS */}
+  <Donations />
 
-    {/* GALLERY */}
-    <Gallery />
+  {/* CONTACT */}
+  <ContactSection />
 
-    {/* CONTACT */}
-    <ContactSection />
-
-    <AdminLink />
-    <Footer />
-  </main>
+  <AdminLink />
+  <Footer />
+</main>
 );
 }
