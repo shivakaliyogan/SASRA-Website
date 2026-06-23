@@ -1,33 +1,37 @@
-"use client";
-
-import { useState } from "react";
-import { Download, History, ShieldCheck } from "lucide-react";
+import { CalendarDays, Sparkles } from "lucide-react";
 import { poojas } from "@/lib/data";
 
 export default function PoojaBooking() {
-  const [confirmed, setConfirmed] = useState(false);
+  const schedules = poojas.map((pooja, index) => ({
+    name: pooja,
+    date: new Date(Date.now() + (index + 1) * 86400000).toLocaleDateString("en-IN", { dateStyle: "full" })
+  }));
+
   return (
     <section id="programs" className="section bg-white dark:bg-stone-950">
       <div className="container-x grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
         <div>
-          <p className="font-semibold uppercase tracking-[0.28em] text-gold">Pooja Booking</p>
-          <h2 className="mt-2 text-3xl font-bold md:text-5xl">Book special poojas with digital confirmations.</h2>
+          <p className="font-semibold uppercase tracking-[0.28em] text-gold">Pooja Schedule</p>
+          <h2 className="mt-2 text-3xl font-bold md:text-5xl">Upcoming pooja names and dates.</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[ShieldCheck, Download, History].map((Icon, i) => (
-              <div key={i} className="glass rounded-2xl p-5"><Icon className="mb-3 h-6 w-6 text-gold" /><p className="text-sm font-bold">{["Login Integration", "PDF Receipts", "Booking History"][i]}</p></div>
+            {["No booking form", "Admin managed", "Date based"].map((item) => (
+              <div key={item} className="glass rounded-2xl p-5"><Sparkles className="mb-3 h-6 w-6 text-gold" /><p className="text-sm font-bold">{item}</p></div>
             ))}
           </div>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); setConfirmed(true); }} className="glass rounded-2xl p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <input required placeholder="Devotee name" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
-            <input required placeholder="Mobile number" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
-            <select className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900">{poojas.map((pooja) => <option key={pooja}>{pooja}</option>)}</select>
-            <input type="date" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
+        <div className="glass rounded-2xl p-6">
+          <div className="grid gap-4">
+            {schedules.map((schedule) => (
+              <div key={schedule.name} className="flex items-center justify-between gap-4 rounded-xl bg-white/80 px-4 py-3 dark:bg-white/10">
+                <div>
+                  <p className="font-bold">{schedule.name}</p>
+                  <p className="text-sm text-stone-600 dark:text-stone-300">{schedule.date}</p>
+                </div>
+                <CalendarDays className="h-5 w-5 text-gold" />
+              </div>
+            ))}
           </div>
-          <button className="mt-5 rounded-full bg-gold px-7 py-3 font-bold text-white">Confirm Booking</button>
-          {confirmed && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">Booking confirmed. Receipt generation is ready for backend integration.</p>}
-        </form>
+        </div>
       </div>
     </section>
   );

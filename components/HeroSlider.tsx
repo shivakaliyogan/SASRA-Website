@@ -9,13 +9,33 @@ import { cn } from "@/lib/utils";
 
 export default function HeroSlider() {
   const [index, setIndex] = useState(0);
-  const slide = heroSlides[index];
-  const go = (dir: number) => setIndex((index + dir + heroSlides.length) % heroSlides.length);
+  const [slides, setSlides] = useState(heroSlides);
+  const slide = slides[index] ?? heroSlides[0];
+  const go = (dir: number) => setIndex((current) => (current + dir + slides.length) % slides.length);
+
+  useEffect(() => {
+    const syncSlides = () => {
+      try {
+        const savedSlides = localStorage.getItem("sasra-hero-slides");
+        if (!savedSlides) return;
+        const parsedSlides = JSON.parse(savedSlides) as typeof heroSlides;
+        if (Array.isArray(parsedSlides) && parsedSlides.length > 0) {
+          setSlides(parsedSlides);
+          setIndex(0);
+        }
+      } catch {
+        localStorage.removeItem("sasra-hero-slides");
+      }
+    };
+    syncSlides();
+    window.addEventListener("sasra-hero-slides-updated", syncSlides);
+    return () => window.removeEventListener("sasra-hero-slides-updated", syncSlides);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => go(1), 4000);
     return () => clearInterval(timer);
-  });
+  }, [slides.length]);
 
   return (
     <section className="relative min-h-[76vh] overflow-hidden">
@@ -39,7 +59,7 @@ export default function HeroSlider() {
       <button onClick={() => go(-1)} className="absolute left-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/20 text-white backdrop-blur" aria-label="Previous slide"><ChevronLeft /></button>
       <button onClick={() => go(1)} className="absolute right-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/20 text-white backdrop-blur" aria-label="Next slide"><ChevronRight /></button>
       <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2">
-        {heroSlides.map((item, i) => (
+        {slides.map((item, i) => (
           <button key={item.image} onClick={() => setIndex(i)} aria-label={`Go to slide ${i + 1}`} className={cn("h-2.5 rounded-full bg-white/60 transition-all", i === index ? "w-8 bg-gold" : "w-2.5")} />
         ))}
       </div>

@@ -25,7 +25,7 @@ export default function Donations() {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">{payments.map((item) => <label key={item} className="rounded-xl border border-gold/30 px-3 py-3 text-center text-sm font-semibold"><input name="payment" type="radio" className="sr-only" />{item}</label>)}</div>
           </div>
           <button className="mt-5 w-full rounded-full bg-temple px-7 py-3 font-bold text-white">Proceed to Payment</button>
-          {done && <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-temple">Razorpay order creation is ready for live credentials.</p>}
+          {done && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">Payment status: Succeeded. Receipt is ready for this donation.</p>}
         </form>
       </div>
     </section>

@@ -116,6 +116,7 @@ export const adminStats = [
 ];
 
 export const adminModules = [
+  { title: "Home Page Slider", icon: ImageIcon, actions: ["Upload Photos", "Edit Titles", "Set Order", "Publish Slides"] },
   { title: "Temple Management", icon: Landmark, actions: ["Add Temple", "Edit Info", "Upload Images", "Manage Locations"] },
   { title: "Festival Management", icon: CalendarDays, actions: ["Create Festival", "Publish Alerts", "Manage Registrations", "Upload Banners"] },
   { title: "Spiritual Programs", icon: Music, actions: ["Schedule Events", "Manage Registrations", "Upload Images", "Edit Programs"] },

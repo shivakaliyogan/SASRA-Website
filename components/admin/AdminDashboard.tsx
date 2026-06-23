@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Bell, Download, ImageUp, LockKeyhole, Moon, Search, ShieldCheck, Sun, UserPlus, Users } from "lucide-react";
-import { adminModules, adminStats } from "@/lib/data";
+import { Bell, Download, ImageUp, LockKeyhole, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
+import { adminModules, adminStats, heroSlides } from "@/lib/data";
 import { permissions, roleLabels, type AdminRole } from "@/lib/permissions";
 
 const chartData = [
@@ -22,7 +21,12 @@ const adminRows = [
   { name: "Temple Office Admin", email: "office@sasra.org", role: "admin" as AdminRole, status: "Active" },
   { name: "Donation Desk", email: "donations@sasra.org", role: "donation_manager" as AdminRole, status: "Invited" }
 ];
-const panels = ["Dashboard", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
+const donationRows = [
+  { email: "devotee@example.com", amount: 2001, status: "Succeeded" },
+  { email: "reader@example.com", amount: 501, status: "Succeeded" },
+  { email: "family@example.com", amount: 10000, status: "Succeeded" }
+];
+const panels = ["Dashboard", "Hero Slider", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
 const modulePanelMap: Record<string, string> = {
   "Temple Management": "Temples",
   "Festival Management": "Festivals",
@@ -30,30 +34,113 @@ const modulePanelMap: Record<string, string> = {
   "Gallery Management": "Gallery",
   "Donation Management": "Donations",
   "Books Management": "Books",
-  "Analytics": "Dashboard"
+  "Analytics": "Dashboard",
+  "Home Page Slider": "Hero Slider"
 };
 
 function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
+  const [donationEmail, setDonationEmail] = useState("");
+  const [heroDrafts, setHeroDrafts] = useState(heroSlides);
+  const [heroTitle, setHeroTitle] = useState(heroSlides[0].title);
+  const [heroSubtitle, setHeroSubtitle] = useState(heroSlides[0].subtitle);
+  const [heroOrder, setHeroOrder] = useState("1");
+  const [heroImage, setHeroImage] = useState(heroSlides[0].image);
+  const [heroMessage, setHeroMessage] = useState("");
   const fields: Record<string, string[]> = {
     Admins: ["Admin name", "Admin email", "Role / permission"],
     Temples: ["Temple name", "Location", "Description"],
-    Festivals: ["Festival name", "Date", "Registration note"],
+    Festivals: ["Festival name", "Date", "Description"],
     Programs: ["Program title", "Schedule", "Audio / video URL"],
-    Bookings: ["Devotee email", "Pooja name", "Booking status"],
-    Donations: ["Donor email", "Amount", "Payment status"],
-    Gallery: ["Album / category", "Caption", "Media URL"],
+    Bookings: ["Pooja name", "Pooja date", "Display note"],
+    Donations: ["Donor email", "Amount", "Succeeded"],
+    Gallery: ["Album / category", "Caption", "Display order"],
     Books: ["Book type", "Book name", "Copies available"],
     Receipts: ["User email", "Receipt type", "Receipt status"],
     Users: ["User name", "Email", "Status"],
     Contact: ["Message subject", "Reply note", "Status"],
+    "Hero Slider": ["Slide title", "Subtitle", "Display order"],
     Settings: ["Website setting", "Value", "Notes"]
   };
   const activeFields = fields[panel] || fields.Settings;
+  const visibleDonations = donationEmail.trim()
+    ? donationRows.filter((row) => row.email.toLowerCase().includes(donationEmail.toLowerCase()))
+    : donationRows;
+  const totalDonation = visibleDonations.reduce((sum, row) => sum + row.amount, 0);
+
+  if (panel === "Hero Slider") {
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Home Page</p>
+        <h3 className="mt-2 text-2xl font-bold">Hero Slider Photos</h3>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">Upload and edit the rolling photos shown at the top of the main page.</p>
+        <form
+          className="mt-5 grid gap-3 md:grid-cols-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const orderIndex = Math.max(0, Number(heroOrder || "1") - 1);
+            const nextSlides = [...heroDrafts];
+            nextSlides[orderIndex] = {
+              image: heroImage || nextSlides[orderIndex]?.image || heroSlides[0].image,
+              title: heroTitle,
+              subtitle: heroSubtitle
+            };
+            setHeroDrafts(nextSlides);
+            localStorage.setItem("sasra-hero-slides", JSON.stringify(nextSlides));
+            window.dispatchEvent(new Event("sasra-hero-slides-updated"));
+            setHeroMessage("Hero slider updated on the main page for this browser. MongoDB and Cloudinary will make it permanent after connection.");
+          }}
+        >
+          <input value={heroTitle} onChange={(event) => setHeroTitle(event.target.value)} required placeholder="Slide title" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          <input value={heroSubtitle} onChange={(event) => setHeroSubtitle(event.target.value)} required placeholder="Subtitle" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          <input value={heroOrder} onChange={(event) => setHeroOrder(event.target.value)} type="number" min="1" placeholder="Display order" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          <input
+            type="file"
+            accept="image/*"
+            className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950 md:col-span-2"
+            aria-label="Upload hero slider photo"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = () => setHeroImage(String(reader.result));
+              reader.readAsDataURL(file);
+            }}
+          />
+          <button className="rounded-full bg-temple px-5 py-3 text-sm font-bold text-white">Save Slider Photo</button>
+        </form>
+        {heroImage && <img src={heroImage} alt="Hero slider preview" className="mt-5 h-52 w-full rounded-2xl object-cover" />}
+        {heroMessage && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">{heroMessage}</p>}
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gold/20">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-amber-50 text-temple dark:bg-white/10 dark:text-gold">
+              <tr><th className="p-3">Photo</th><th className="p-3">Title</th><th className="p-3">Order</th><th className="p-3">Edit</th></tr>
+            </thead>
+            <tbody>
+              {heroDrafts.map((slide, index) => (
+                <tr key={`${slide.image}-${index}`} className="border-t border-gold/10">
+                  <td className="p-3"><img src={slide.image} alt="" className="h-14 w-24 rounded-xl object-cover" /></td>
+                  <td className="p-3"><p className="font-bold">{slide.title}</p><p className="text-xs text-stone-500">{slide.subtitle}</p></td>
+                  <td className="p-3">{index + 1}</td>
+                  <td className="p-3"><button type="button" onClick={() => { setHeroTitle(slide.title); setHeroSubtitle(slide.subtitle); setHeroOrder(String(index + 1)); setHeroImage(slide.image); }} className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-white">Edit</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
       <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{panel} Management</p>
-      <h3 className="mt-2 text-2xl font-bold">{panel === "Books" ? "Books" : panel}</h3>
+      <h3 className="mt-2 text-2xl font-bold">{panel === "Bookings" ? "Pooja Schedule" : panel}</h3>
+      {panel === "Donations" && (
+        <div className="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
+          <input value={donationEmail} onChange={(event) => setDonationEmail(event.target.value)} type="email" placeholder="Search donation amount by user email" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          <div className="rounded-xl bg-amber-50 px-5 py-3 text-sm font-bold text-temple dark:bg-white/10 dark:text-gold">Total: Rs. {totalDonation.toLocaleString("en-IN")}</div>
+        </div>
+      )}
       <form
         className="mt-5 grid gap-3 md:grid-cols-3"
         onSubmit={(event) => {
@@ -62,8 +149,42 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
         }}
       >
         {activeFields.map((field, index) => (
-          <input key={field} required={index < 2} placeholder={field} className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          field === "Album / category" ? (
+            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
+              <option value="">Select album/category</option>
+              <option value="Photos">Photos</option>
+              <option value="Videos">Videos</option>
+              <option value="PDFS">PDFS</option>
+            </select>
+          ) : field === "Book type" ? (
+            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
+              <option value="">Select book type</option>
+              <option value="Devotional">Devotional</option>
+              <option value="Vedic Scripture">Vedic Scripture</option>
+              <option value="Stotras">Stotras</option>
+              <option value="Bhajan Collections">Bhajan Collections</option>
+              <option value="Spiritual Books">Spiritual Books</option>
+              <option value="Other">Other</option>
+            </select>
+          ) : field === "Receipt type" ? (
+            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
+              <option value="">Select receipt type</option>
+              <option value="Donation">Donation</option>
+              <option value="Book Lending">Book Lending</option>
+              <option value="Pooja">Pooja</option>
+              <option value="Festival">Festival</option>
+              <option value="General">General</option>
+            </select>
+          ) : (
+            <input key={field} required={index < 2} placeholder={field} className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+          )
         ))}
+        {panel === "Temples" && (
+          <input type="file" accept="image/*" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload temple image" />
+        )}
+        {panel === "Gallery" && (
+          <input type="file" accept="image/*,video/*,application/pdf" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload gallery media" />
+        )}
         {panel === "Books" && (
           <div className="md:col-span-3 grid gap-3 md:grid-cols-2">
             <input type="date" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Default lending start date" />
@@ -73,19 +194,22 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
         {panel === "Receipts" && (
           <input type="email" placeholder="Search receipts by user email" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
         )}
-        <button className="rounded-full bg-temple px-5 py-3 text-sm font-bold text-white md:col-span-3">Save {panel}</button>
+        <button className="rounded-full bg-temple px-5 py-3 text-sm font-bold text-white md:col-span-3">Save {panel === "Bookings" ? "Pooja" : panel}</button>
       </form>
       <div className="mt-6 overflow-hidden rounded-2xl border border-gold/20">
         <table className="w-full text-left text-sm">
           <thead className="bg-amber-50 text-temple dark:bg-white/10 dark:text-gold">
-            <tr><th className="p-3">Record</th><th className="p-3">Type</th><th className="p-3">Status</th></tr>
+            <tr><th className="p-3">Record</th><th className="p-3">Type</th><th className="p-3">Status</th><th className="p-3">Edit</th></tr>
           </thead>
           <tbody>
-            <tr className="border-t border-gold/10">
-              <td className="p-3">{panel === "Books" ? "Bhagavad Gita" : `${panel} sample`}</td>
-              <td className="p-3">{panel === "Books" ? "Vedic Scripture" : "Management"}</td>
-              <td className="p-3">Ready</td>
-            </tr>
+            {(panel === "Donations" ? visibleDonations : [{ email: "", amount: 0, status: "Ready" }]).map((row, index) => (
+              <tr key={`${panel}-${index}`} className="border-t border-gold/10">
+                <td className="p-3">{panel === "Books" ? "Bhagavad Gita" : panel === "Donations" ? row.email : panel === "Festivals" ? "Guru Purnima Mahotsavam" : panel === "Bookings" ? "Abhishekam" : `${panel} sample`}</td>
+                <td className="p-3">{panel === "Books" ? "Vedic Scripture" : panel === "Donations" ? `Rs. ${row.amount.toLocaleString("en-IN")}` : panel === "Bookings" ? "2026-07-01" : "Management"}</td>
+                <td className="p-3">{panel === "Donations" ? row.status : "Ready"}</td>
+                <td className="p-3"><button type="button" className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-white">Edit</button></td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -97,6 +221,7 @@ export default function AdminDashboard() {
   const [dark, setDark] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [activePanel, setActivePanel] = useState("Dashboard");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<AdminRole>("admin");
   const [adminMessage, setAdminMessage] = useState("");
   const [logoMessage, setLogoMessage] = useState("");
@@ -127,13 +252,19 @@ export default function AdminDashboard() {
   return (
     <main className={dark ? "dark" : ""}>
       <div className="min-h-screen bg-lotus text-stone-900 dark:bg-stone-950 dark:text-white">
-        <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-gold/20 bg-white/80 p-5 backdrop-blur-xl dark:bg-stone-900/80 lg:block">
-          <h1 className="text-xl font-extrabold text-temple dark:text-gold">SASRA Admin</h1>
+        <aside className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-gold/20 bg-white/95 p-5 backdrop-blur-xl transition-transform dark:bg-stone-900/95 lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-xl font-extrabold text-temple dark:text-gold">SASRA Admin</h1>
+            <button onClick={() => setMenuOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-amber-50 lg:hidden dark:bg-white/10" aria-label="Close admin menu"><X className="h-5 w-5" /></button>
+          </div>
           <nav className="mt-8 grid gap-2">
             {panels.map((item) => (
               <button
                 key={item}
-                onClick={() => setActivePanel(item)}
+                onClick={() => {
+                  setActivePanel(item);
+                  setMenuOpen(false);
+                }}
                 className={`rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-gold/15 ${activePanel === item ? "bg-gold text-white" : ""}`}
               >
                 {item}
@@ -141,11 +272,15 @@ export default function AdminDashboard() {
             ))}
           </nav>
         </aside>
+        {menuOpen && <button aria-label="Close admin menu overlay" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-30 bg-black/35 lg:hidden" />}
         <section className="lg:pl-72">
           <header className="sticky top-0 z-30 border-b border-gold/20 bg-lotus/90 p-4 backdrop-blur-xl dark:bg-stone-950/90">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-gold">Super Admin Dashboard</p>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow lg:hidden dark:bg-white/10 dark:text-gold" aria-label="Open admin menu"><Menu className="h-5 w-5" /></button>
+                  <p className="text-sm font-semibold text-gold">Super Admin Dashboard</p>
+                </div>
                 <h2 className="text-2xl font-bold">Sri Adhinarayana Swamy Rajayogashramam</h2>
               </div>
               <div className="flex items-center gap-2">
@@ -172,7 +307,29 @@ export default function AdminDashboard() {
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
               <div className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
                 <div className="mb-4 flex items-center justify-between"><h3 className="text-xl font-bold">Donation and User Growth</h3><button className="flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-sm font-bold text-white"><Download className="h-4 w-4" />Export</button></div>
-                <div className="h-80"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Area type="monotone" dataKey="donations" stroke="#d6a22d" fill="#fcd34d" /><Area type="monotone" dataKey="users" stroke="#b91c1c" fill="#fecaca" /></AreaChart></ResponsiveContainer></div>
+                                <div className="space-y-4">
+                  {chartData.map((item) => {
+                    const donationWidth = `${Math.min(100, item.donations)}%`;
+                    const userWidth = `${Math.min(100, item.users)}%`;
+                    return (
+                      <div key={item.month} className="grid gap-2 rounded-2xl border border-gold/10 bg-amber-50/60 p-4 dark:bg-white/10 sm:grid-cols-[56px_1fr] sm:items-center">
+                        <span className="text-sm font-bold text-temple dark:text-gold">{item.month}</span>
+                        <div className="space-y-2">
+                          <div className="h-3 overflow-hidden rounded-full bg-gold/20" aria-label={`${item.donations} donations`}>
+                            <div className="h-full rounded-full bg-gold" style={{ width: donationWidth }} />
+                          </div>
+                          <div className="h-3 overflow-hidden rounded-full bg-temple/15" aria-label={`${item.users} users`}>
+                            <div className="h-full rounded-full bg-temple" style={{ width: userWidth }} />
+                          </div>
+                          <div className="flex justify-between text-xs text-stone-500 dark:text-stone-300">
+                            <span>{item.donations} donations</span>
+                            <span>{item.users} users</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
                 <h3 className="text-xl font-bold">Recent Activities</h3>
