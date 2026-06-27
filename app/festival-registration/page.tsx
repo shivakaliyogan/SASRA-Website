@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
-export default function FestivalRegistrationPage() {
+function FestivalRegistrationContent() {
   const searchParams = useSearchParams();
 
   const festivalName =
@@ -166,5 +166,12 @@ export default function FestivalRegistrationPage() {
         </div>
       </div>
     </main>
+  );
+}
+export default function FestivalRegistrationPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-lotus py-12 dark:bg-stone-950" />}>
+      <FestivalRegistrationContent />
+    </Suspense>
   );
 }

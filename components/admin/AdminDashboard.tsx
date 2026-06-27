@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Download, ImageUp, LockKeyhole, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Bell, Download, Globe2, ImageUp, LockKeyhole, MapPinned, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
 import { adminModules, adminStats, heroSlides } from "@/lib/data";
 import { permissions, roleLabels, type AdminRole } from "@/lib/permissions";
+import { useLanguage } from "@/components/LanguageContext";
 
 const chartData = [
   { month: "Jan", donations: 18, users: 32 },
@@ -26,7 +27,7 @@ const donationRows = [
   { email: "reader@example.com", amount: 501, status: "Succeeded" },
   { email: "family@example.com", amount: 10000, status: "Succeeded" }
 ];
-const panels = ["Dashboard", "Hero Slider", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
+const panels = ["Dashboard", "Analytics", "Hero Slider", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
 const modulePanelMap: Record<string, string> = {
   "Temple Management": "Temples",
   "Festival Management": "Festivals",
@@ -34,7 +35,7 @@ const modulePanelMap: Record<string, string> = {
   "Gallery Management": "Gallery",
   "Donation Management": "Donations",
   "Books Management": "Books",
-  "Analytics": "Dashboard",
+  "Analytics": "Analytics",
   "Home Page Slider": "Hero Slider"
 };
 
@@ -66,6 +67,29 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
     ? donationRows.filter((row) => row.email.toLowerCase().includes(donationEmail.toLowerCase()))
     : donationRows;
   const totalDonation = visibleDonations.reduce((sum, row) => sum + row.amount, 0);
+
+  if (panel === "Analytics") {
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Analytics</p>
+        <h3 className="mt-2 text-2xl font-bold">Website, Donation and User Growth</h3>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {["Website Visitors", "Donation Analytics", "Festival Registrations", "Popular Pages", "User Growth", "Reports"].map((item) => (
+            <button key={item} type="button" className="rounded-2xl border border-gold/20 bg-amber-50 p-4 text-left font-bold text-temple transition hover:bg-gold hover:text-white dark:bg-white/10 dark:text-gold">{item}</button>
+          ))}
+        </div>
+        <div className="mt-6 space-y-4">
+          {chartData.map((item) => (
+            <div key={item.month} className="rounded-2xl border border-gold/10 p-4 dark:border-white/10">
+              <div className="flex justify-between text-sm font-bold"><span>{item.month}</span><span>{item.users} users / {item.donations} donations</span></div>
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-gold/15"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.min(100, item.users)}%` }} /></div>
+              <div className="mt-2 h-3 overflow-hidden rounded-full bg-temple/15"><div className="h-full rounded-full bg-temple" style={{ width: `${Math.min(100, item.donations)}%` }} /></div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   if (panel === "Hero Slider") {
     return (
@@ -138,7 +162,7 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
       {panel === "Donations" && (
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
           <input value={donationEmail} onChange={(event) => setDonationEmail(event.target.value)} type="email" placeholder="Search donation amount by user email" className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
-          <div className="rounded-xl bg-amber-50 px-5 py-3 text-sm font-bold text-temple dark:bg-white/10 dark:text-gold">Total: Rs. {totalDonation.toLocaleString("en-IN")}</div>
+          <div className="rounded-xl bg-amber-50 px-5 py-3 text-sm font-bold text-temple dark:bg-white/10 dark:text-gold">Total: {totalDonation.toLocaleString("en-IN")}</div>
         </div>
       )}
       <form
@@ -150,37 +174,38 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
       >
         {activeFields.map((field, index) => (
           field === "Album / category" ? (
-            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
-              <option value="">Select album/category</option>
-              <option value="Photos">Photos</option>
-              <option value="Videos">Videos</option>
-              <option value="PDFS">PDFS</option>
-            </select>
+            <div key={field}>
+              <input required list="gallery-category-options" placeholder="Album/category or add new" className="w-full rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+              <datalist id="gallery-category-options"><option value="Photos" /><option value="Videos" /><option value="PDFS" /></datalist>
+            </div>
           ) : field === "Book type" ? (
-            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
-              <option value="">Select book type</option>
-              <option value="Devotional">Devotional</option>
-              <option value="Vedic Scripture">Vedic Scripture</option>
-              <option value="Stotras">Stotras</option>
-              <option value="Bhajan Collections">Bhajan Collections</option>
-              <option value="Spiritual Books">Spiritual Books</option>
-              <option value="Other">Other</option>
-            </select>
+            <div key={field}>
+              <input required list="book-type-options" placeholder="Book type or add new" className="w-full rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+              <datalist id="book-type-options"><option value="Devotional" /><option value="Vedic Scripture" /><option value="Stotras" /><option value="Bhajan Collections" /><option value="Spiritual Books" /><option value="Other" /></datalist>
+            </div>
           ) : field === "Receipt type" ? (
-            <select key={field} required className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950">
-              <option value="">Select receipt type</option>
-              <option value="Donation">Donation</option>
-              <option value="Book Lending">Book Lending</option>
-              <option value="Pooja">Pooja</option>
-              <option value="Festival">Festival</option>
-              <option value="General">General</option>
-            </select>
+            <div key={field}>
+              <input required list="receipt-type-options" placeholder="Receipt type or add new" className="w-full rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+              <datalist id="receipt-type-options"><option value="Donation" /><option value="Book Lending" /><option value="Pooja" /><option value="Festival" /><option value="General" /></datalist>
+            </div>
+          ) : field === "Amount" ? (
+            <input key={field} required inputMode="numeric" pattern="[0-9]*" placeholder="Amount" onInput={(event) => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, ""); }} className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
           ) : (
             <input key={field} required={index < 2} placeholder={field} className="rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
           )
         ))}
         {panel === "Temples" && (
-          <input type="file" accept="image/*" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload temple image" />
+          <>
+            <input type="file" accept="image/*" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload temple image" />
+            <div className="md:col-span-3 overflow-hidden rounded-2xl border border-gold/20 bg-amber-50/70 dark:bg-white/10">
+              <div className="flex items-center gap-2 p-4 text-sm font-bold text-temple dark:text-gold"><MapPinned className="h-4 w-4" /> Location Map Preview</div>
+              <input placeholder="Paste Google Maps share/embed link or location name" className="mx-4 mb-4 w-[calc(100%-2rem)] rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" />
+              <iframe title="Temple location map" src="https://maps.google.com/maps?q=Andhra%20Pradesh%20India&z=12&output=embed" className="h-64 w-full border-0" loading="lazy" />
+            </div>
+          </>
+        )}
+        {panel === "Festivals" && (
+          <input type="file" accept="image/*" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload festival banner" />
         )}
         {panel === "Gallery" && (
           <input type="file" accept="image/*,video/*,application/pdf" className="md:col-span-3 rounded-xl border border-gold/30 px-4 py-3 text-sm dark:bg-stone-950" aria-label="Upload gallery media" />
@@ -205,7 +230,7 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
             {(panel === "Donations" ? visibleDonations : [{ email: "", amount: 0, status: "Ready" }]).map((row, index) => (
               <tr key={`${panel}-${index}`} className="border-t border-gold/10">
                 <td className="p-3">{panel === "Books" ? "Bhagavad Gita" : panel === "Donations" ? row.email : panel === "Festivals" ? "Guru Purnima Mahotsavam" : panel === "Bookings" ? "Abhishekam" : `${panel} sample`}</td>
-                <td className="p-3">{panel === "Books" ? "Vedic Scripture" : panel === "Donations" ? `Rs. ${row.amount.toLocaleString("en-IN")}` : panel === "Bookings" ? "2026-07-01" : "Management"}</td>
+                <td className="p-3">{panel === "Books" ? "Vedic Scripture" : panel === "Donations" ? `${row.amount.toLocaleString("en-IN")}` : panel === "Bookings" ? "2026-07-01" : "Management"}</td>
                 <td className="p-3">{panel === "Donations" ? row.status : "Ready"}</td>
                 <td className="p-3"><button type="button" className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-white">Edit</button></td>
               </tr>
@@ -225,10 +250,21 @@ export default function AdminDashboard() {
   const [selectedRole, setSelectedRole] = useState<AdminRole>("admin");
   const [adminMessage, setAdminMessage] = useState("");
   const [logoMessage, setLogoMessage] = useState("");
+  const { language, setLanguage, t } = useLanguage();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
 
   if (!loggedIn) {
     return (
       <main className="min-h-screen bg-lotus p-4 dark:bg-stone-950">
+        <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="fixed left-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-gold/30 bg-white/90 text-temple shadow-lg transition hover:bg-gold hover:text-white dark:bg-stone-900 dark:text-gold" aria-label={t("admin.back")} title={t("admin.back")}><ArrowLeft className="h-5 w-5" /></button>
         <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-8 lg:grid-cols-2">
           <div>
             <p className="font-semibold uppercase tracking-[0.28em] text-gold">Secure Admin</p>
@@ -252,7 +288,7 @@ export default function AdminDashboard() {
   return (
     <main className={dark ? "dark" : ""}>
       <div className="min-h-screen bg-lotus text-stone-900 dark:bg-stone-950 dark:text-white">
-        <aside className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-gold/20 bg-white/95 p-5 backdrop-blur-xl transition-transform dark:bg-stone-900/95 lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <aside className={`fixed inset-y-0 left-0 z-40 w-72 overflow-y-auto overscroll-contain border-r border-gold/20 bg-white/95 p-5 backdrop-blur-xl transition-transform dark:bg-stone-900/95 lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
           <div className="flex items-center justify-between gap-3">
             <h1 className="text-xl font-extrabold text-temple dark:text-gold">SASRA Admin</h1>
             <button onClick={() => setMenuOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-amber-50 lg:hidden dark:bg-white/10" aria-label="Close admin menu"><X className="h-5 w-5" /></button>
@@ -279,12 +315,14 @@ export default function AdminDashboard() {
               <div>
                 <div className="flex items-center gap-3">
                   <button onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow lg:hidden dark:bg-white/10 dark:text-gold" aria-label="Open admin menu"><Menu className="h-5 w-5" /></button>
-                  <p className="text-sm font-semibold text-gold">Super Admin Dashboard</p>
+                  <p className="text-sm font-semibold text-gold">{t("admin.superDashboard")}</p>
                 </div>
                 <h2 className="text-2xl font-bold">Sri Adhinarayana Swamy Rajayogashramam</h2>
               </div>
               <div className="flex items-center gap-2">
-                <div className="hidden items-center rounded-full bg-white px-4 py-2 dark:bg-white/10 md:flex"><Search className="h-4 w-4 text-gold" /><input placeholder="Search records" className="ml-2 bg-transparent text-sm outline-none" /></div>
+                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow transition hover:bg-gold hover:text-white dark:bg-white/10 dark:text-gold" aria-label={t("admin.back")} title={t("admin.back")}><ArrowLeft className="h-5 w-5" /></button>
+                <label className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm dark:bg-white/10" title="Select Language"><Globe2 className="h-4 w-4 text-gold" /><select value={language} onChange={(event) => setLanguage(event.target.value as "en" | "hi" | "te")} className="bg-transparent outline-none" aria-label="Language selector"><option value="en">English</option><option value="hi">Hindi</option><option value="te">Telugu</option></select></label>
+                <div className="hidden items-center rounded-full bg-white px-4 py-2 dark:bg-white/10 md:flex"><Search className="h-4 w-4 text-gold" /><input placeholder={t("admin.search")} className="ml-2 bg-transparent text-sm outline-none" /></div>
                 <button className="grid h-10 w-10 place-items-center rounded-full bg-white dark:bg-white/10"><Bell className="h-5 w-5" /></button>
                 <button onClick={() => setDark((v) => !v)} className="grid h-10 w-10 place-items-center rounded-full bg-gold text-white">{dark ? <Sun /> : <Moon />}</button>
               </div>

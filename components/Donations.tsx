@@ -21,7 +21,7 @@ export default function Donations() {
         <form onSubmit={(e) => { e.preventDefault(); setDone(true); }} className="rounded-2xl bg-white p-6 shadow-xl dark:bg-stone-950">
           <div className="grid gap-4">
             <select className="rounded-xl border border-gold/30 px-4 py-3 dark:bg-stone-900">{categories.map((item) => <option key={item}>{item}</option>)}</select>
-            <input type="number" min="1" placeholder="Amount in INR" className="rounded-xl border border-gold/30 px-4 py-3 dark:bg-stone-900" />
+            <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Amount" onInput={(event) => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, ""); }} className="rounded-xl border border-gold/30 px-4 py-3 dark:bg-stone-900" />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">{payments.map((item) => <label key={item} className="rounded-xl border border-gold/30 px-3 py-3 text-center text-sm font-semibold"><input name="payment" type="radio" className="sr-only" />{item}</label>)}</div>
           </div>
           <button className="mt-5 w-full rounded-full bg-temple px-7 py-3 font-bold text-white">Proceed to Payment</button>
