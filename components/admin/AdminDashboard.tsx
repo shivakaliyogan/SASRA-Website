@@ -27,7 +27,7 @@ const donationRows = [
   { email: "reader@example.com", amount: 501, status: "Succeeded" },
   { email: "family@example.com", amount: 10000, status: "Succeeded" }
 ];
-const panels = ["Dashboard", "Analytics", "Hero Slider", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Contact", "Settings"];
+const panels = ["Dashboard", "Analytics", "Hero Slider", "Admins", "Temples", "Festivals", "Programs", "Bookings", "Donations", "Gallery", "Books", "Receipts", "Users", "Family Trees", "Contact", "Settings"];
 const modulePanelMap: Record<string, string> = {
   "Temple Management": "Temples",
   "Festival Management": "Festivals",
@@ -47,6 +47,206 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
   const [heroOrder, setHeroOrder] = useState("1");
   const [heroImage, setHeroImage] = useState(heroSlides[0].image);
   const [heroMessage, setHeroMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [devotees, setDevotees] = useState<any[]>([]);
+  const [usersList, setUsersList] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [replyingTo, setReplyingTo] = useState<any | null>(null);
+  const [replyInput, setReplyInput] = useState("");
+  const [replySuccess, setReplySuccess] = useState("");
+  const [settingsTitle, setSettingsTitle] = useState("Sri Adhinarayana Swamy Rajayogashramam");
+  const [settingsEmail, setSettingsEmail] = useState("contact@sasra.org");
+  const [settingsPhone, setSettingsPhone] = useState("+91 90000 00000");
+  const [bookingsEnabled, setBookingsEnabled] = useState(true);
+  const [donationsEnabled, setDonationsEnabled] = useState(true);
+  const [bannerText, setBannerText] = useState("Welcome to Sri Adhinarayana Swamy Rajayogashramam");
+  const [saveMsg, setSaveMsg] = useState("");
+
+  const [newLendingName, setNewLendingName] = useState("");
+  const [newLendingEmail, setNewLendingEmail] = useState("");
+  const [newLendingBook, setNewLendingBook] = useState("");
+  const [newLendingCategory, setNewLendingCategory] = useState("Vedic Scripture");
+  const [newLendingDueDate, setNewLendingDueDate] = useState("");
+  const [newLendingSuccess, setNewLendingSuccess] = useState("");
+
+  const [bookCatalog, setBookCatalog] = useState<any[]>([]);
+  const [newBookTitle, setNewBookTitle] = useState("");
+  const [newBookCategory, setNewBookCategory] = useState("Vedic Scripture");
+  const [newBookCopies, setNewBookCopies] = useState("1");
+  const [bookAddSuccess, setBookAddSuccess] = useState("");
+
+  useEffect(() => {
+    if (panel === "Family Trees" || panel === "Users") {
+      const stored = localStorage.getItem("sasra-all-profiles");
+      const mockDevotees = [
+        {
+          name: "Srinivas Sharma",
+          email: "srinivas@example.com",
+          phone: "+91 94401 23456",
+          lastLoggedIn: "2026-07-01 10:45 AM",
+          family: [
+            { name: "Lakshmi Sharma", relation: "Wife" },
+            { name: "Karthik Sharma", relation: "Son" },
+            { name: "Ananya Sharma", relation: "Daughter" }
+          ]
+        },
+        {
+          name: "Ramesh Kumar",
+          email: "ramesh@example.com",
+          phone: "+91 98480 98765",
+          lastLoggedIn: "2026-06-30 08:20 PM",
+          family: [
+            { name: "Savitri Devi", relation: "Mother" },
+            { name: "Ganesh Kumar", relation: "Brother" }
+          ]
+        },
+        {
+          name: "Pooja Patel",
+          email: "pooja@example.com",
+          phone: "+91 99123 45678",
+          lastLoggedIn: "2026-07-01 11:15 AM",
+          family: [
+            { name: "Rajesh Patel", relation: "Husband" }
+          ]
+        }
+      ];
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const combined = [...parsed];
+          mockDevotees.forEach(mock => {
+            if (!combined.some(item => item.email === mock.email)) {
+              combined.push(mock);
+            }
+          });
+          setDevotees(combined);
+          setUsersList(combined);
+        } catch (e) {
+          setDevotees(mockDevotees);
+          setUsersList(mockDevotees);
+        }
+      } else {
+        setDevotees(mockDevotees);
+        setUsersList(mockDevotees);
+        localStorage.setItem("sasra-all-profiles", JSON.stringify(mockDevotees));
+      }
+    }
+  }, [panel]);
+
+  useEffect(() => {
+    if (panel === "Contact") {
+      const loadMessages = () => {
+        const stored = localStorage.getItem("sasra-contact-messages");
+        const mockMessages = [
+          { id: "MSG-101", name: "Devendra Rao", email: "devendra@example.com", phone: "+91 94401 55667", message: "When is the temple timings during Guru Purnima? Will there be online prasadam bookings?", date: "Jun 28, 2026", status: "Pending", replyText: "" },
+          { id: "MSG-099", name: "Kiran Kumar", email: "kiran@example.com", phone: "+91 98482 11223", message: "I want to sponsor Annadanam for 50 people on Janmashtami. Please let me know how to pay.", date: "Jun 25, 2026", status: "Replied", replyText: "Namaste Kiran, you can sponsor under the Donations section by choosing 'Festival Sponsorship'. Our team will coordinate." }
+        ];
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            const combined = [...parsed];
+            mockMessages.forEach(mm => {
+              if (!combined.some(item => item.id === mm.id)) {
+                combined.push(mm);
+              }
+            });
+            setMessages(combined);
+          } catch (e) {
+            setMessages(mockMessages);
+          }
+        } else {
+          setMessages(mockMessages);
+          localStorage.setItem("sasra-contact-messages", JSON.stringify(mockMessages));
+        }
+      };
+      loadMessages();
+      window.addEventListener("sasra-messages-updated", loadMessages);
+      return () => window.removeEventListener("sasra-messages-updated", loadMessages);
+    }
+  }, [panel]);
+
+  useEffect(() => {
+    if (panel === "Settings") {
+      const stored = localStorage.getItem("sasra-settings");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.title) setSettingsTitle(parsed.title);
+          if (parsed.email) setSettingsEmail(parsed.email);
+          if (parsed.phone) setSettingsPhone(parsed.phone);
+          if (parsed.bookingsEnabled !== undefined) setBookingsEnabled(parsed.bookingsEnabled);
+          if (parsed.donationsEnabled !== undefined) setDonationsEnabled(parsed.donationsEnabled);
+          if (parsed.bannerText) setBannerText(parsed.bannerText);
+        } catch (e) {}
+      }
+    }
+  }, [panel]);
+
+  const [lendingsList, setLendingsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (panel === "Books") {
+      // Load all registered users for the assign-book selector
+      const storedProfiles = localStorage.getItem("sasra-all-profiles");
+      const mockProfiles = [
+        { name: "Srinivas Sharma", email: "srinivas@example.com" },
+        { name: "Ramesh Kumar",    email: "ramesh@example.com" },
+        { name: "Pooja Patel",     email: "pooja@example.com" }
+      ];
+      if (storedProfiles) {
+        try {
+          const parsed = JSON.parse(storedProfiles);
+          const combined = [...parsed];
+          mockProfiles.forEach(m => { if (!combined.some((u: any) => u.email === m.email)) combined.push(m); });
+          setUsersList(combined);
+        } catch { setUsersList(mockProfiles); }
+      } else {
+        setUsersList(mockProfiles);
+      }
+
+      // Load all book lendings
+      const stored = localStorage.getItem("sasra-all-book-lendings");
+      const mockLendings = [
+        { id: "SASRA-BK-3301", email: "srinivas@example.com", name: "Srinivas Sharma", bookName: "Bhagavad Gita As It Is", category: "Vedic Scripture", borrowedDate: "2026-06-20T00:00:00.000Z", dueDate: "2026-07-15T00:00:00.000Z", status: "Borrowed" },
+        { id: "SASRA-BK-1085", email: "ramesh@example.com",   name: "Ramesh Kumar",   bookName: "Srimad Bhagavatam - Canto 1", category: "Puranic Literature", borrowedDate: "2026-06-15T00:00:00.000Z", dueDate: "2026-06-29T00:00:00.000Z", status: "Borrowed" },
+        { id: "SASRA-BK-2041", email: "pooja@example.com",    name: "Pooja Patel",    bookName: "Rama Charita Manas", category: "Devotional Epic", borrowedDate: "2026-06-22T00:00:00.000Z", dueDate: "2026-07-06T00:00:00.000Z", status: "Borrowed" }
+      ];
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const combined = [...parsed];
+          mockLendings.forEach(mock => { if (!combined.some(item => item.id === mock.id)) combined.push(mock); });
+          setLendingsList(combined);
+        } catch (e) {
+          setLendingsList(mockLendings);
+        }
+      } else {
+        setLendingsList(mockLendings);
+        localStorage.setItem("sasra-all-book-lendings", JSON.stringify(mockLendings));
+      }
+
+      // Load Book Catalog
+      const storedCatalog = localStorage.getItem("sasra-book-catalog");
+      const mockCatalog = [
+        { id: "CAT-001", title: "Bhagavad Gita As It Is",       category: "Vedic Scripture",    copies: 5 },
+        { id: "CAT-002", title: "Srimad Bhagavatam - Canto 1",  category: "Puranic Literature",  copies: 3 },
+        { id: "CAT-003", title: "Rama Charita Manas",           category: "Devotional Epic",     copies: 4 },
+        { id: "CAT-004", title: "Valmiki Ramayana",             category: "Devotional Epic",     copies: 2 },
+        { id: "CAT-005", title: "Stotra Ratnavali",             category: "Bhajan Collection",   copies: 6 }
+      ];
+      if (storedCatalog) {
+        try {
+          const parsed = JSON.parse(storedCatalog);
+          const combined = [...parsed];
+          mockCatalog.forEach(m => { if (!combined.some((b: any) => b.id === m.id)) combined.push(m); });
+          setBookCatalog(combined);
+        } catch { setBookCatalog(mockCatalog); }
+      } else {
+        setBookCatalog(mockCatalog);
+        localStorage.setItem("sasra-book-catalog", JSON.stringify(mockCatalog));
+      }
+    }
+  }, [panel]);
   const fields: Record<string, string[]> = {
     Admins: ["Admin name", "Admin email", "Role / permission"],
     Temples: ["Temple name", "Location", "Description"],
@@ -87,6 +287,809 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
             </div>
           ))}
         </div>
+      </section>
+    );
+  }
+
+  if (panel === "Family Trees") {
+    const filteredDevotees = devotees.filter(d => 
+      d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      d.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Devotee Families</p>
+        <h3 className="mt-2 text-2xl font-bold">Devotee Family Trees</h3>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
+          View and search devotee family structures. You can search by devotee name or email address.
+        </p>
+        
+        <div className="mt-5 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gold" />
+          </div>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            type="text"
+            placeholder="Search by name or email..."
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 text-sm outline-none focus:ring-2 focus:ring-gold"
+          />
+        </div>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {filteredDevotees.length === 0 ? (
+            <p className="p-6 text-sm text-stone-550 dark:text-stone-350 col-span-2 text-center bg-amber-50/20 dark:bg-white/5 rounded-2xl border border-dashed border-amber-100">
+              No devotee family trees matched your search query.
+            </p>
+          ) : (
+            filteredDevotees.map((devotee, index) => (
+              <div
+                key={`${devotee.email}-${index}`}
+                className="rounded-2xl border border-gold/20 p-5 bg-white dark:bg-stone-950 shadow-sm space-y-4"
+              >
+                <div className="border-b border-amber-100/50 dark:border-white/5 pb-3">
+                  <h4 className="font-bold text-lg text-temple dark:text-gold">{devotee.name}</h4>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">{devotee.email}</p>
+                  {devotee.phone && <p className="text-xs text-stone-500 dark:text-stone-400">{devotee.phone}</p>}
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-stone-400">Family Members</p>
+                  {!devotee.family || devotee.family.length === 0 ? (
+                    <p className="text-xs text-stone-500 italic">No family members registered.</p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {devotee.family.map((member: any, idx: number) => (
+                        <div
+                          key={`${member.name}-${idx}`}
+                          className="flex justify-between items-center text-sm p-2 rounded-xl bg-amber-50/30 dark:bg-white/5"
+                        >
+                          <span className="font-semibold text-stone-850 dark:text-stone-200">{member.name}</span>
+                          <span className="text-xs px-2.5 py-1 rounded-full bg-gold/10 text-gold font-bold uppercase tracking-wide">
+                            {member.relation}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  if (panel === "Users") {
+    const filteredUsers = usersList.filter(u => 
+      (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">User Accounts</p>
+        <h3 className="mt-2 text-2xl font-bold">Devotee Directory</h3>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
+          Monitor registered devotee accounts, contact numbers, and login status history.
+        </p>
+
+        <div className="mt-5 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gold" />
+          </div>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            type="text"
+            placeholder="Search users by name or email..."
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 text-sm outline-none focus:ring-2 focus:ring-gold"
+          />
+        </div>
+
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gold/20">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-amber-50 text-temple dark:bg-white/10 dark:text-gold">
+              <tr>
+                <th className="p-4">Devotee Name</th>
+                <th className="p-4">Email</th>
+                <th className="p-4">Phone</th>
+                <th className="p-4">Last Logged In</th>
+                <th className="p-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center text-stone-500 italic">
+                    No devotees found matching your search.
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user, idx) => (
+                  <tr key={`${user.email}-${idx}`} className="border-t border-gold/10 hover:bg-gold/5 transition">
+                    <td className="p-4 font-bold">{user.name}</td>
+                    <td className="p-4">{user.email}</td>
+                    <td className="p-4">{user.phone || "Not provided"}</td>
+                    <td className="p-4 font-semibold text-amber-800 dark:text-gold">{user.lastLoggedIn || "Not logged in yet"}</td>
+                    <td className="p-4 text-center">
+                      <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                        Active
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    );
+  }
+
+  if (panel === "Books") {
+    const filteredLendings = lendingsList.filter(item => 
+      (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (item.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.bookName || "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleMarkReturned = (id: string) => {
+      const updated = lendingsList.map(item =>
+        item.id === id ? { ...item, status: "Returned" } : item
+      );
+      setLendingsList(updated);
+      localStorage.setItem("sasra-all-book-lendings", JSON.stringify(updated));
+      // Always broadcast — the user's profile page listens and will re-read from sasra-all-book-lendings
+      window.dispatchEvent(new CustomEvent("sasra-books-updated", { detail: { id, status: "Returned" } }));
+    };
+
+    const handleUndoReturn = (id: string) => {
+      const updated = lendingsList.map(item =>
+        item.id === id ? { ...item, status: "Borrowed" } : item
+      );
+      setLendingsList(updated);
+      localStorage.setItem("sasra-all-book-lendings", JSON.stringify(updated));
+      // Always broadcast
+      window.dispatchEvent(new CustomEvent("sasra-books-updated", { detail: { id, status: "Borrowed" } }));
+    };
+
+    const handleAddNewLending = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newLendingEmail || !newLendingBook || !newLendingDueDate) return;
+
+      // Lookup the name from the selected user in usersList
+      const selectedUser = usersList.find((u: any) => u.email === newLendingEmail);
+      const resolvedName = selectedUser ? selectedUser.name : newLendingEmail;
+
+      const newLending = {
+        id: `SASRA-BK-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: resolvedName,
+        email: newLendingEmail.trim(),
+        bookName: newLendingBook.trim(),
+        category: newLendingCategory,
+        borrowedDate: new Date().toISOString(),
+        dueDate: new Date(newLendingDueDate).toISOString(),
+        status: "Borrowed"
+      };
+
+      const updatedList = [newLending, ...lendingsList];
+      setLendingsList(updatedList);
+      localStorage.setItem("sasra-all-book-lendings", JSON.stringify(updatedList));
+
+      try {
+        const userEmail = localStorage.getItem("sasra-user-email");
+        if (userEmail === newLending.email) {
+          const saved = localStorage.getItem("sasra-user-books");
+          const list = saved ? JSON.parse(saved) : [];
+          list.unshift(newLending);
+          localStorage.setItem("sasra-user-books", JSON.stringify(list));
+          window.dispatchEvent(new Event("sasra-books-updated"));
+        }
+      } catch (err) {}
+
+      setNewLendingName("");
+      setNewLendingEmail("");
+      setNewLendingBook("");
+      setNewLendingCategory("Vedic Scripture");
+      setNewLendingDueDate("");
+      setNewLendingSuccess(`Book "${newLending.bookName}" assigned to ${resolvedName} successfully!`);
+      setTimeout(() => setNewLendingSuccess(""), 4000);
+    };
+
+    const handleAddBook = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newBookTitle.trim()) return;
+      const entry = {
+        id: `CAT-${Date.now()}`,
+        title: newBookTitle.trim(),
+        category: newBookCategory,
+        copies: parseInt(newBookCopies) || 1
+      };
+      const updated = [entry, ...bookCatalog];
+      setBookCatalog(updated);
+      localStorage.setItem("sasra-book-catalog", JSON.stringify(updated));
+      setNewBookTitle("");
+      setNewBookCategory("Vedic Scripture");
+      setNewBookCopies("1");
+      setBookAddSuccess(`"${entry.title}" added to the library catalog!`);
+      setTimeout(() => setBookAddSuccess(""), 4000);
+    };
+
+    const handleDeleteBook = (id: string) => {
+      const updated = bookCatalog.filter(b => b.id !== id);
+      setBookCatalog(updated);
+      localStorage.setItem("sasra-book-catalog", JSON.stringify(updated));
+    };
+
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900 space-y-8">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Library System</p>
+          <h3 className="mt-2 text-2xl font-bold">Books & Lending Manager</h3>
+          <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
+            Manage the library catalog and track book lendings for all devotees.
+          </p>
+        </div>
+
+        {/* ── SECTION 1: Library Catalog ── */}
+        <div className="rounded-2xl border border-gold/20 overflow-hidden">
+          <div className="bg-amber-50 dark:bg-white/5 px-5 py-4 flex items-center justify-between">
+            <div>
+              <h4 className="font-bold text-temple dark:text-gold text-base">📖 Library Book Catalog</h4>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">All books available in the Ashramam library.</p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-gold/10 text-gold">{bookCatalog.length} Books</span>
+          </div>
+
+          {bookAddSuccess && (
+            <p className="mx-5 mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
+              {bookAddSuccess}
+            </p>
+          )}
+
+          {/* Add New Book Form */}
+          <form onSubmit={handleAddBook} className="m-5 p-5 rounded-2xl border border-dashed border-gold/30 bg-stone-50/50 dark:bg-stone-950/30 space-y-3">
+            <p className="text-sm font-bold text-stone-700 dark:text-stone-200">+ Add New Book to Library</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="block text-xs font-semibold col-span-1 sm:col-span-2 lg:col-span-1">
+                Book Title *
+                <input
+                  required
+                  type="text"
+                  value={newBookTitle}
+                  onChange={(e) => setNewBookTitle(e.target.value)}
+                  placeholder="e.g. Mahabharata"
+                  className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+                />
+              </label>
+
+              <label className="block text-xs font-semibold">
+                Category / Type *
+                <select
+                  value={newBookCategory}
+                  onChange={(e) => setNewBookCategory(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100 font-medium"
+                >
+                  <option value="Vedic Scripture">Vedic Scripture</option>
+                  <option value="Devotional Epic">Devotional Epic</option>
+                  <option value="Puranic Literature">Puranic Literature</option>
+                  <option value="Bhajan Collection">Bhajan Collection</option>
+                  <option value="Spiritual Discourse">Spiritual Discourse</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label className="block text-xs font-semibold">
+                Copies Available
+                <input
+                  type="number"
+                  min="1"
+                  value={newBookCopies}
+                  onChange={(e) => setNewBookCopies(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+                />
+              </label>
+
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  className="w-full rounded-full bg-temple hover:bg-amber-800 dark:bg-gold dark:text-stone-950 py-2.5 font-bold text-white shadow transition text-sm"
+                >
+                  Add to Library
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {/* Catalog Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-stone-50 dark:bg-white/5 text-stone-500 dark:text-stone-400 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="px-5 py-3">Book Title</th>
+                  <th className="px-5 py-3">Category / Type</th>
+                  <th className="px-5 py-3 text-center">Copies</th>
+                  <th className="px-5 py-3 text-center">Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookCatalog.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-6 text-center text-stone-400 italic">No books in catalog yet.</td>
+                  </tr>
+                ) : (
+                  bookCatalog.map((book, idx) => (
+                    <tr key={`${book.id}-${idx}`} className="border-t border-gold/10 hover:bg-gold/5 transition">
+                      <td className="px-5 py-3 font-bold text-stone-850 dark:text-stone-100">{book.title}</td>
+                      <td className="px-5 py-3">
+                        <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 dark:bg-gold/10 dark:text-gold">
+                          {book.category}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-center font-bold text-temple dark:text-gold">{book.copies}</td>
+                      <td className="px-5 py-3 text-center">
+                        <button
+                          onClick={() => handleDeleteBook(book.id)}
+                          className="rounded-full border border-red-200 dark:border-red-800/40 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-1 text-xs font-bold transition"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ── SECTION 2: Assign Book (Lending) ── */}
+
+        {newLendingSuccess && (
+          <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
+            {newLendingSuccess}
+          </p>
+        )}
+
+        {/* Add Lending Form */}
+        <form onSubmit={handleAddNewLending} className="mt-6 p-5 rounded-2xl border border-gold/20 bg-stone-50/50 dark:bg-stone-950/30 space-y-4">
+          <h4 className="font-bold text-temple dark:text-gold text-lg">📚 Assign Book to Devotee</h4>
+          <p className="text-xs text-stone-500 dark:text-stone-400">Select a registered devotee from the dropdown and fill in the book details to assign a lending.</p>
+          
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="block text-sm font-semibold">
+              Select Devotee *
+              <select
+                required
+                value={newLendingEmail}
+                onChange={(e) => setNewLendingEmail(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100 font-medium"
+              >
+                <option value="">— Choose a devotee —</option>
+                {usersList.map((u: any, i: number) => (
+                  <option key={`${u.email}-${i}`} value={u.email}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Book Title *
+              <input
+                required
+                type="text"
+                value={newLendingBook}
+                onChange={(e) => setNewLendingBook(e.target.value)}
+                placeholder="e.g. Bhagavad Gita"
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Book Category / Type *
+              <select
+                required
+                value={newLendingCategory}
+                onChange={(e) => setNewLendingCategory(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100 font-medium"
+              >
+                <option value="Vedic Scripture">Vedic Scripture</option>
+                <option value="Devotional Epic">Devotional Epic</option>
+                <option value="Puranic Literature">Puranic Literature</option>
+                <option value="Bhajan Collection">Bhajan Collection</option>
+                <option value="Spiritual Discourse">Spiritual Discourse</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Lending Return Due Date *
+              <input
+                required
+                type="date"
+                value={newLendingDueDate}
+                onChange={(e) => setNewLendingDueDate(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-white dark:bg-stone-950 px-4 py-2.5 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+
+            <div className="flex items-end">
+              <button
+                type="submit"
+                className="w-full rounded-full bg-temple hover:bg-amber-800 dark:bg-gold dark:text-stone-950 py-2.5 font-bold text-white shadow transition text-sm hover:opacity-95"
+              >
+                Register Lending
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div className="mt-5 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gold" />
+          </div>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            type="text"
+            placeholder="Search lendings by borrower name, email, or book title..."
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 text-sm outline-none focus:ring-2 focus:ring-gold"
+          />
+        </div>
+
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gold/20">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-amber-50 text-temple dark:bg-white/10 dark:text-gold">
+              <tr>
+                <th className="p-4">Borrower Details</th>
+                <th className="p-4">Book Details</th>
+                <th className="p-4">Lending Period</th>
+                <th className="p-4">Days Left</th>
+                <th className="p-4 text-center">Status</th>
+                <th className="p-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLendings.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-6 text-center text-stone-500 italic">
+                    No lending records match your query.
+                  </td>
+                </tr>
+              ) : (
+                filteredLendings.map((item, idx) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const due = new Date(item.dueDate);
+                  due.setHours(0, 0, 0, 0);
+                  const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                  let daysText = "";
+                  let daysStyle = "";
+
+                  if (item.status === "Returned") {
+                    daysText = "Returned";
+                    daysStyle = "bg-stone-100 text-stone-600 dark:bg-white/5 dark:text-stone-400";
+                  } else if (diffDays > 5) {
+                    daysText = `${diffDays} days remaining`;
+                    daysStyle = "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 font-semibold";
+                  } else if (diffDays > 0) {
+                    daysText = `${diffDays} days - due soon`;
+                    daysStyle = "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 font-semibold";
+                  } else if (diffDays === 0) {
+                    daysText = "Due today!";
+                    daysStyle = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400 font-bold animate-pulse";
+                  } else {
+                    daysText = `Overdue by ${Math.abs(diffDays)} days!`;
+                    daysStyle = "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 font-extrabold";
+                  }
+
+                  return (
+                    <tr key={`${item.id}-${idx}`} className="border-t border-gold/10 hover:bg-gold/5 transition">
+                      <td className="p-4">
+                        <p className="font-bold">{item.name}</p>
+                        <p className="text-xs text-stone-500">{item.email}</p>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-bold text-amber-900 dark:text-gold">{item.bookName}</p>
+                        <p className="text-xs text-stone-550 dark:text-stone-450">{item.category}</p>
+                      </td>
+                      <td className="p-4 text-xs font-medium text-stone-605 dark:text-stone-300">
+                        <p>Lent: {new Date(item.borrowedDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
+                        <p className="mt-0.5">Due: {new Date(item.dueDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs ${daysStyle}`}>
+                          {daysText}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${
+                          item.status === "Returned"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                            : diffDays >= 0
+                            ? "bg-stone-100 text-stone-850 dark:bg-white/10 dark:text-stone-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {item.status !== "Returned" ? (
+                          <button
+                            onClick={() => handleMarkReturned(item.id)}
+                            className="rounded-full bg-temple hover:bg-amber-800 dark:bg-gold dark:text-stone-950 px-3.5 py-1.5 text-xs font-bold text-white shadow transition"
+                          >
+                            Mark Returned
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleUndoReturn(item.id)}
+                            className="rounded-full border border-stone-300 dark:border-white/20 bg-stone-100 hover:bg-stone-200 dark:bg-white/5 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 px-3.5 py-1.5 text-xs font-bold shadow transition"
+                          >
+                            ↩ Undo Return
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    );
+  }
+
+  if (panel === "Contact") {
+    const handleSendReply = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!replyingTo || !replyInput.trim()) return;
+
+      const updatedList = messages.map(msg => {
+        if (msg.id === replyingTo.id) {
+          return { ...msg, status: "Replied", replyText: replyInput.trim() };
+        }
+        return msg;
+      });
+
+      setMessages(updatedList);
+      localStorage.setItem("sasra-contact-messages", JSON.stringify(updatedList));
+      setReplyInput("");
+      setReplyingTo(null);
+      setReplySuccess("Reply registered successfully!");
+      setTimeout(() => setReplySuccess(""), 3000);
+    };
+
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Communications</p>
+        <h3 className="mt-2 text-2xl font-bold">Devotee Inquiries</h3>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
+          Read and respond to questions submitted by devotees from the website contact form.
+        </p>
+
+        {replySuccess && (
+          <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
+            {replySuccess}
+          </p>
+        )}
+
+        <div className="mt-6 space-y-4">
+          {messages.length === 0 ? (
+            <p className="p-8 text-center text-sm text-stone-500 italic bg-stone-50 dark:bg-stone-950 rounded-2xl border border-gold/10">No contact messages received yet.</p>
+          ) : (
+            messages.map((msg, index) => (
+              <div key={`${msg.id}-${index}`} className="p-5 rounded-2xl border border-gold/20 bg-stone-50/50 dark:bg-stone-950/30 flex flex-col gap-4 shadow-sm">
+                <div className="flex flex-wrap justify-between items-start gap-2 border-b border-gold/10 pb-3">
+                  <div>
+                    <h4 className="font-bold text-lg text-temple dark:text-gold">{msg.name}</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{msg.email} | {msg.phone}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-stone-500">{msg.date}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      msg.status === "Replied"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                    }`}>
+                      {msg.status}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium italic text-stone-750 dark:text-stone-250">"{msg.message}"</p>
+                </div>
+
+                {msg.replyText && (
+                  <div className="mt-1 p-3.5 bg-amber-50/40 dark:bg-white/5 border-l-2 border-gold rounded-r-xl space-y-1">
+                    <p className="text-xs font-bold text-gold uppercase tracking-wider">Ashramam Reply</p>
+                    <p className="text-sm text-stone-700 dark:text-stone-300">"{msg.replyText}"</p>
+                  </div>
+                )}
+
+                {msg.status !== "Replied" && (
+                  <div className="flex justify-end pt-2">
+                    <button
+                      onClick={() => {
+                        setReplyingTo(msg);
+                        setReplyInput("");
+                      }}
+                      className="rounded-full bg-temple hover:bg-amber-800 dark:bg-gold dark:text-stone-950 px-5 py-2 text-xs font-bold text-white shadow transition"
+                    >
+                      Reply to Devotee
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {replyingTo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="relative w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl dark:bg-stone-900 border border-gold/20">
+              <button
+                onClick={() => setReplyingTo(null)}
+                className="absolute right-4 top-4 text-stone-500 hover:text-stone-755 dark:text-stone-400 dark:hover:text-stone-200"
+                aria-label="Close modal"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <form onSubmit={handleSendReply} className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-bold text-temple dark:text-gold">Reply to {replyingTo.name}</h3>
+                  <p className="text-xs text-stone-500 mt-1">Devotee message: "{replyingTo.message.slice(0, 80)}..."</p>
+                </div>
+
+                <textarea
+                  required
+                  rows={5}
+                  value={replyInput}
+                  onChange={(e) => setReplyInput(e.target.value)}
+                  placeholder="Type your official reply message here..."
+                  className="w-full rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 px-4 py-3 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+                />
+
+                <button
+                  type="submit"
+                  className="w-full rounded-full bg-temple px-6 py-2.5 font-bold text-white shadow-lg transition"
+                >
+                  Send Reply
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  if (panel === "Settings") {
+    const handleSaveSettings = (e: React.FormEvent) => {
+      e.preventDefault();
+      const newSettings = { 
+        title: settingsTitle, 
+        email: settingsEmail, 
+        phone: settingsPhone, 
+        bookingsEnabled, 
+        donationsEnabled, 
+        bannerText 
+      };
+      localStorage.setItem("sasra-settings", JSON.stringify(newSettings));
+      window.dispatchEvent(new Event("sasra-settings-updated"));
+      setSaveMsg("Settings updated successfully! Changes are applied across the website.");
+      setTimeout(() => setSaveMsg(""), 3000);
+    };
+
+    return (
+      <section className="rounded-2xl bg-white p-5 shadow-lg dark:bg-stone-900">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Administration</p>
+        <h3 className="mt-2 text-2xl font-bold">Ashramam Website Settings</h3>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
+          Configure general temple descriptors, contact details, operational features, and notification banners.
+        </p>
+
+        {saveMsg && (
+          <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
+            {saveMsg}
+          </p>
+        )}
+
+        <form onSubmit={handleSaveSettings} className="mt-6 space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block text-sm font-semibold">
+              Ashramam / Temple Title
+              <input
+                required
+                type="text"
+                value={settingsTitle}
+                onChange={(e) => setSettingsTitle(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 px-4 py-3 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Office Email Address
+              <input
+                required
+                type="email"
+                value={settingsEmail}
+                onChange={(e) => setSettingsEmail(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 px-4 py-3 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Office Help Desk Phone
+              <input
+                required
+                type="text"
+                value={settingsPhone}
+                onChange={(e) => setSettingsPhone(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 px-4 py-3 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+
+            <label className="block text-sm font-semibold">
+              Marquee Notification Banner
+              <input
+                required
+                type="text"
+                value={bannerText}
+                onChange={(e) => setBannerText(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-gold/30 bg-stone-50 dark:bg-stone-950 px-4 py-3 outline-none focus:ring-2 focus:ring-gold text-sm dark:text-stone-100"
+              />
+            </label>
+          </div>
+
+          <div className="border-t border-amber-100/50 dark:border-white/5 pt-5 space-y-3">
+            <h4 className="font-bold text-stone-900 dark:text-amber-50">Operational Toggles</h4>
+            
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex items-center gap-3 p-4 rounded-xl border border-gold/20 bg-stone-50/50 dark:bg-stone-950/30 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bookingsEnabled}
+                  onChange={(e) => setBookingsEnabled(e.checked)}
+                  className="h-5 w-5 accent-gold cursor-pointer"
+                />
+                <div>
+                  <p className="font-bold text-sm">Allow Pooja Bookings</p>
+                  <p className="text-xs text-stone-500">Enable devotees to schedule sevas online.</p>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-4 rounded-xl border border-gold/20 bg-stone-50/50 dark:bg-stone-950/30 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={donationsEnabled}
+                  onChange={(e) => setDonationsEnabled(e.checked)}
+                  className="h-5 w-5 accent-gold cursor-pointer"
+                />
+                <div>
+                  <p className="font-bold text-sm">Allow Online Donations</p>
+                  <p className="text-xs text-stone-500">Enable devotee payment pathways for goshala and build sevas.</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="rounded-full bg-temple hover:bg-amber-800 dark:bg-gold dark:text-stone-950 px-7 py-3 font-bold text-white shadow-lg transition"
+          >
+            Save Settings
+          </button>
+        </form>
       </section>
     );
   }
@@ -301,7 +1304,7 @@ export default function AdminDashboard() {
                   setActivePanel(item);
                   setMenuOpen(false);
                 }}
-                className={`rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-gold/15 ${activePanel === item ? "bg-gold text-white" : ""}`}
+                className={`rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-gold/15 whitespace-nowrap ${activePanel === item ? "bg-gold text-white" : ""}`}
               >
                 {item}
               </button>

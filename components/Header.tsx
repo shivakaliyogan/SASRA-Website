@@ -17,6 +17,8 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
   const { dark, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
 
+  const [welcomeText, setWelcomeText] = useState("");
+
   useEffect(() => {
     setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -44,41 +46,76 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
   }, []);
 
   useEffect(() => {
-  const onScroll = () => {
-    const sections = navItems
-      .map(([, id]) => document.getElementById(id))
-      .filter(Boolean);
-
-    let currentSection = "home";
-
-    sections.forEach((section) => {
-      const rect = section!.getBoundingClientRect();
-
-      if (rect.top <= 150 && rect.bottom >= 150) {
-        currentSection = section!.id;
+    const syncSettings = () => {
+      const stored = localStorage.getItem("sasra-settings");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.bannerText) {
+            setWelcomeText(parsed.bannerText);
+            return;
+          }
+        } catch (e) {}
       }
-    });
+      setWelcomeText(t("header.welcome"));
+    };
+    syncSettings();
+    window.addEventListener("sasra-settings-updated", syncSettings);
+    return () => window.removeEventListener("sasra-settings-updated", syncSettings);
+  }, [language, t]);
 
-    setActive(currentSection);
-  };
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.pathname === "/profile") {
+      setActive("profile");
+      return;
+    }
+    const onScroll = () => {
+      const sections = navItems
+        .map(([, id]) => document.getElementById(id))
+        .filter(Boolean);
 
-  window.addEventListener("scroll", onScroll);
-  onScroll();
+      let currentSection = "home";
 
-  return () => {
-    window.removeEventListener("scroll", onScroll);
-  };
-}, []);
+      sections.forEach((section) => {
+        const rect = section!.getBoundingClientRect();
+
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          currentSection = section!.id;
+        }
+      });
+
+      setActive(currentSection);
+    };
+
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
   const nav = (
     <nav className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-1" aria-label="Primary">
+      <a
+        href="/profile"
+        onClick={() => setOpen(false)}
+        className={cn(
+          "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold flex items-center gap-1.5 whitespace-nowrap",
+          active === "profile" && "bg-gold text-white shadow-lg shadow-amber-300/30"
+        )}
+        title={t("header.profile")}
+      >
+        <UserCircle className="h-6 w-6" />
+        <span className="lg:hidden">{t("header.profile")}</span>
+      </a>
       {navItems.map(([label, id]) => (
         <a
           key={id}
           href={ id === "books"? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
           onClick={() => setOpen(false)}
           className={cn(
-            "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold",
+            "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold whitespace-nowrap",
             active === id && "bg-gold text-white shadow-lg shadow-amber-300/30"
           )}
         >
@@ -94,7 +131,7 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
         <Logo />
         <div className="min-w-0 overflow-hidden rounded-full border border-gold/30 bg-white/70 px-4 py-2 text-center text-sm dark:bg-white/10">
           <div className="marquee whitespace-nowrap font-semibold text-temple dark:text-gold">
-            {t("header.welcome")}
+            {welcomeText}
           </div>
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : t("header.loadingTime")}</time>
         </div>
@@ -141,7 +178,7 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
             title={t("header.profile")}
             onClick={() => setProfile((v) => !v)}
             className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
-            aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
+            aria-haspopup="menu">              <UserCircle className="h-6 w-6" />
               <ChevronDown className="h-4 w-4" />
             </button>
             {profile && (
@@ -152,17 +189,24 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
                     <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">{t("header.signup")}</a>
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      localStorage.removeItem("sasra-user-logged-in");
-                      window.dispatchEvent(new Event("sasra-auth-changed"));
-                      setProfile(false);
-                    }}
-                    className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10"
-                  >
-                    {t("header.logout")}
-                  </button>
+                  <>
+                    <a href="/profile" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10" onClick={() => setProfile(false)}>
+                      {t("header.profile")}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.removeItem("sasra-user-logged-in");
+                        localStorage.removeItem("sasra-user-profile");
+                        window.dispatchEvent(new Event("sasra-auth-changed"));
+                        setProfile(false);
+                        window.location.href = "/";
+                      }}
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10 text-red-500 border-t border-amber-50 dark:border-stone-800 mt-1 pt-2"
+                    >
+                      {t("header.logout")}
+                    </button>
+                  </>
                 )}
               </div>
             )}
