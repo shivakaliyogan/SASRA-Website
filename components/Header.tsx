@@ -19,6 +19,8 @@ export default function Header() {
   const { dark, toggleTheme } = useTheme();
 
 
+  const [welcomeText, setWelcomeText] = useState("");
+
   useEffect(() => {
     setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -46,6 +48,35 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    const syncSettings = () => {
+      const stored = localStorage.getItem("sasra-settings");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.bannerText) {
+            setWelcomeText(parsed.bannerText);
+            return;
+          }
+        } catch { }
+      }
+      setWelcomeText("Welcome to Sri Adhinarayana Swamy Rajayogashramam");
+    };
+
+    syncSettings();
+
+    window.addEventListener("sasra-settings-updated", syncSettings);
+
+    return () => {
+      window.removeEventListener("sasra-settings-updated", syncSettings);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.pathname === "/profile") {
+      setActive("profile");
+      return;
+    }
+
     const onScroll = () => {
       const sections = navItems
         .map(([, id]) => document.getElementById(id))
@@ -74,13 +105,25 @@ export default function Header() {
 
   const nav = (
     <nav className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-1" aria-label="Primary">
+      <a
+        href="/profile"
+        onClick={() => setOpen(false)}
+        className={cn(
+          "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold flex items-center gap-1.5 whitespace-nowrap",
+          active === "profile" && "bg-gold text-white shadow-lg shadow-amber-300/30"
+        )}
+        title="My Profile"
+      >
+        <UserCircle className="h-6 w-6" />
+        <span className="lg:hidden">My Profile</span>
+      </a>
       {navItems.map(([label, id]) => (
         <a
           key={id}
           href={id === "books" ? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
           onClick={() => setOpen(false)}
           className={cn(
-            "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold",
+            "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold whitespace-nowrap",
             active === id && "bg-gold text-white shadow-lg shadow-amber-300/30"
           )}
         >
@@ -96,7 +139,7 @@ export default function Header() {
         <Logo />
         <div className="min-w-0 overflow-hidden rounded-full border border-gold/30 bg-white/70 px-4 py-2 text-center text-sm dark:bg-white/10">
           <div className="marquee whitespace-nowrap font-semibold text-temple dark:text-gold">
-            Welcome to Sri Adhinarayana Swamy Rajayogashramam
+            {welcomeText}
           </div>
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
@@ -144,7 +187,9 @@ export default function Header() {
               title="Profile"
               onClick={() => setProfile((v) => !v)}
               className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
-              aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
+              aria-haspopup="menu"
+            >
+              <UserCircle className="h-6 w-6" />
               <ChevronDown className="h-4 w-4" />
             </button>
             {profile && (
@@ -160,17 +205,24 @@ export default function Header() {
                     <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Sign Up</a>
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      localStorage.removeItem("sasra-user-logged-in");
-                      window.dispatchEvent(new Event("sasra-auth-changed"));
-                      setProfile(false);
-                    }}
-                    className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10"
-                  >
-                    Logout
-                  </button>
+                  <>
+                    <a href="/profile" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10" onClick={() => setProfile(false)}>
+                      My Profile
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.removeItem("sasra-user-logged-in");
+                        localStorage.removeItem("sasra-user-profile");
+                        window.dispatchEvent(new Event("sasra-auth-changed"));
+                        setProfile(false);
+                        window.location.href = "/";
+                      }}
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10 text-red-500 border-t border-amber-50 dark:border-stone-800 mt-1 pt-2"
+                    >
+                      Logout
+                    </button>
+                  </>
                 )}
               </div>
             )}

@@ -14,6 +14,10 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
   const [otpSent, setOtpSent] = useState(false);
   const [verified, setVerified] = useState(false);
   const [otp, setOtp] = useState("");
+  const [nameVal, setNameVal] = useState("");
+  const [emailVal, setEmailVal] = useState("");
+  const [phoneVal, setPhoneVal] = useState("");
+  const [passwordVal, setPasswordVal] = useState("");
 
   const isLogin = mode === "login";
   const resetSignupOtp = () => {
@@ -71,6 +75,66 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
               event.preventDefault();
               if (isLogin) {
                 localStorage.setItem("sasra-user-logged-in", "true");
+                localStorage.setItem("sasra-user-email", emailVal || "devotee@example.com");
+                
+                const existingProfile = localStorage.getItem("sasra-user-profile");
+                const lastLoginTime = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+                
+                let devoteeProfile = {
+                  name: "Devotee User",
+                  email: emailVal || "devotee@example.com",
+                  phone: "+91 98765 43210",
+                  address: "123 Ashram Road, Near Main Temple, India",
+                  lastLoggedIn: lastLoginTime,
+                  family: []
+                };
+
+                if (existingProfile) {
+                  try {
+                    const parsed = JSON.parse(existingProfile);
+                    devoteeProfile = {
+                      ...devoteeProfile,
+                      ...parsed,
+                      email: emailVal || parsed.email,
+                      lastLoggedIn: lastLoginTime
+                    };
+                  } catch (e) {}
+                }
+                
+                localStorage.setItem("sasra-user-profile", JSON.stringify(devoteeProfile));
+                
+                // Sync to global devotees list
+                try {
+                  const allStr = localStorage.getItem("sasra-all-profiles");
+                  const list = allStr ? JSON.parse(allStr) : [];
+                  const index = list.findIndex((u: any) => u.email === devoteeProfile.email);
+                  if (index !== -1) {
+                    list[index] = { ...list[index], ...devoteeProfile };
+                  } else {
+                    list.push(devoteeProfile);
+                  }
+                  localStorage.setItem("sasra-all-profiles", JSON.stringify(list));
+                } catch (e) {}
+                
+                if (!localStorage.getItem("sasra-user-bookings")) {
+                  localStorage.setItem("sasra-user-bookings", JSON.stringify([
+                    { id: "SASRA-PJ-2044", name: "Abhishekam Seva", devoteeName: "Devotee User", date: "2026-07-05", amount: "₹501", status: "Confirmed" },
+                    { id: "SASRA-PJ-1082", name: "Archana", devoteeName: "Devotee User", date: "2026-06-20", amount: "₹101", status: "Completed" }
+                  ]));
+                }
+                if (!localStorage.getItem("sasra-user-donations")) {
+                  localStorage.setItem("sasra-user-donations", JSON.stringify([
+                    { id: "SASRA-DN-1001", category: "Goshala Donation", amount: "₹2,001", date: "2026-06-12", status: "Paid", paymentMethod: "Razorpay" },
+                    { id: "SASRA-DN-0943", category: "General Donation", amount: "₹1,000", date: "2026-05-15", status: "Paid", paymentMethod: "UPI" }
+                  ]));
+                }
+                if (!localStorage.getItem("sasra-user-books")) {
+                  localStorage.setItem("sasra-user-books", JSON.stringify([
+                    { id: "SASRA-BK-3301", bookName: "Bhagavad Gita As It Is", category: "Vedic Scripture", borrowedDate: "2026-06-20T00:00:00.000Z", dueDate: "2026-07-15T00:00:00.000Z", status: "Borrowed" },
+                    { id: "SASRA-BK-1085", bookName: "Srimad Bhagavatam - Canto 1", category: "Puranic Literature", borrowedDate: "2026-06-15T00:00:00.000Z", dueDate: "2026-06-29T00:00:00.000Z", status: "Borrowed" }
+                  ]));
+                }
+
                 window.dispatchEvent(new Event("sasra-auth-changed"));
                 setMessage("Login successful. JWT authentication is ready for database connection.");
                 router.push("/");
@@ -87,6 +151,41 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
               }
               setVerified(true);
               localStorage.setItem("sasra-user-logged-in", "true");
+              localStorage.setItem("sasra-user-email", emailVal || "devotee@example.com");
+              const lastLoginTimeSignup = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+              
+              const newProfile = {
+                name: nameVal || "Devotee User",
+                email: emailVal || "devotee@example.com",
+                phone: phoneVal || "+91 90000 00000",
+                address: "No address provided yet",
+                lastLoggedIn: lastLoginTimeSignup,
+                family: []
+              };
+              
+              localStorage.setItem("sasra-user-profile", JSON.stringify(newProfile));
+
+              // Sync to global devotees list
+              try {
+                const allStr = localStorage.getItem("sasra-all-profiles");
+                const list = allStr ? JSON.parse(allStr) : [];
+                const index = list.findIndex((u: any) => u.email === newProfile.email);
+                if (index !== -1) {
+                  list[index] = { ...list[index], ...newProfile };
+                } else {
+                  list.push(newProfile);
+                }
+                localStorage.setItem("sasra-all-profiles", JSON.stringify(list));
+              } catch (e) {}
+
+              localStorage.setItem("sasra-user-bookings", JSON.stringify([
+                { id: "SASRA-PJ-2044", name: "Abhishekam Seva", devoteeName: nameVal || "Devotee User", date: "2026-07-05", amount: "₹501", status: "Confirmed" }
+              ]));
+              localStorage.setItem("sasra-user-donations", JSON.stringify([]));
+              localStorage.setItem("sasra-user-books", JSON.stringify([
+                { id: "SASRA-BK-3301", bookName: "Bhagavad Gita As It Is", category: "Vedic Scripture", borrowedDate: "2026-06-20T00:00:00.000Z", dueDate: "2026-07-15T00:00:00.000Z", status: "Borrowed" }
+              ]));
+
               window.dispatchEvent(new Event("sasra-auth-changed"));
               setMessage("Mobile number verified and account created. SMS OTP gateway is ready for production integration.");
               router.push("/");
@@ -95,14 +194,14 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
             {!isLogin && (
               <label className="grid gap-2 text-sm font-semibold">
                 Full Name
-                <input required placeholder="Enter your name" className="rounded-xl border border-gold/30 bg-white/85 px-4 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
+                <input required value={nameVal} onChange={(e) => setNameVal(e.target.value)} name="name" placeholder="Enter your name" className="rounded-xl border border-gold/30 bg-white/85 px-4 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
               </label>
             )}
             <label className="grid gap-2 text-sm font-semibold">
               Email Address
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gold" />
-                <input required type="email" placeholder="devotee@example.com" className="w-full rounded-xl border border-gold/30 bg-white/85 px-12 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
+                <input required type="email" value={emailVal} onChange={(e) => setEmailVal(e.target.value)} name="email" placeholder="devotee@example.com" className="w-full rounded-xl border border-gold/30 bg-white/85 px-12 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
               </div>
             </label>
             {!isLogin && (
@@ -110,7 +209,7 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
                 Phone Number
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gold" />
-                  <input required placeholder="+91 90000 00000" className="w-full rounded-xl border border-gold/30 bg-white/85 px-12 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
+                  <input required value={phoneVal} onChange={(e) => setPhoneVal(e.target.value)} name="phone" placeholder="+91 90000 00000" className="w-full rounded-xl border border-gold/30 bg-white/85 px-12 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
                 </div>
               </label>
             )}
@@ -125,7 +224,7 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
             )}
             <label className="grid gap-2 text-sm font-semibold">
               Password
-              <input required type="password" placeholder="Enter password" className="rounded-xl border border-gold/30 bg-white/85 px-4 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
+              <input required type="password" value={passwordVal} onChange={(e) => setPasswordVal(e.target.value)} name="password" placeholder="Enter password" className="rounded-xl border border-gold/30 bg-white/85 px-4 py-3 outline-none focus:ring-4 focus:ring-amber-200 dark:bg-stone-900" />
             </label>
             {!isLogin && (
               <label className="grid gap-2 text-sm font-semibold">

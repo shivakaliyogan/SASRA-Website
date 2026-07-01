@@ -9,13 +9,13 @@ export async function GET() {
       success: true,
       message: "MongoDB Connected Successfully!",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
 
     return NextResponse.json(
       {
         success: false,
-        message: "MongoDB Connection Failed",
+        error: error.message,
       },
       { status: 500 }
     );
