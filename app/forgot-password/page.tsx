@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
+  const router = useRouter();
 
   return (
     <main className="min-h-screen bg-lotus py-12 dark:bg-stone-950">
@@ -107,12 +108,9 @@ export default function ForgotPasswordPage() {
           )}
 
           <div className="mt-8 text-center">
-            <Link
-              href="/login"
-              className="font-bold text-gold hover:underline"
-            >
-              ← Back to Login
-            </Link>
+            <button
+            onClick={() => router.replace("/login")}
+            className="font-bold text-gold hover:underline">← Back to Login</button>
           </div>
 
         </div>

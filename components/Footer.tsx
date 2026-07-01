@@ -1,6 +1,7 @@
 "use client";
 
 import Logo from "@/components/Logo";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -15,10 +16,10 @@ export default function Footer() {
         <div>
           <h3 className="font-bold text-gold">Quick Links</h3>
           <div className="mt-4 grid gap-2 text-sm">
-            <a href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#donations">Donations</a>
-            <a href="#contact">Contact Us</a>
+            <Link href="/">Home</Link>
+            <Link href="/#about">About</Link>
+            <Link href="/#donations">Donations</Link>
+            <Link href="/#contact">Contact Us</Link>
           </div>
         </div>
         <div>

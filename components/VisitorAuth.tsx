@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { KeyRound, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { Mail, Phone, KeyRound } from "lucide-react";
 
 type AuthMode = "login" | "signup";
 
@@ -26,25 +27,18 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
     <section className="section min-h-[70vh] bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-stone-900 dark:via-stone-950 dark:to-black">
       <div className="container-x grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="font-semibold uppercase tracking-[0.28em] text-gold">Devotee Access</p>
+          <p className="font-semibold uppercase tracking-[0.28em] text-gold">
+            Devotee Access
+          </p>
+
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-temple dark:text-gold md:text-6xl">
             Login or create your devotee account.
           </h1>
+
           <p className="mt-5 max-w-xl text-stone-600 dark:text-stone-300">
-            Use your account for pooja bookings, receipts, donation history, festival registrations, saved downloads and profile updates.
+            Use your account for pooja bookings, donation history, festival
+            registrations, and profile updates.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[
-              ["Secure Access", ShieldCheck],
-              ["Profile Details", UserRound],
-              ["Receipts", Mail]
-            ].map(([label, Icon]) => (
-              <div key={label as string} className="glass rounded-2xl p-5">
-                <Icon className="mb-3 h-6 w-6 text-gold" />
-                <p className="text-sm font-bold">{label as string}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="glass rounded-3xl p-5 md:p-8">
@@ -144,8 +138,7 @@ export default function VisitorAuth({ defaultMode = "login" }: Readonly<{ defaul
                 <input type="checkbox" className="h-4 w-4 accent-gold" />
                 Remember me
               </label>
-              {isLogin && <button type="button" className="font-bold text-gold">Forgot Password?</button>}
-            </div>
+              {isLogin && (<Link href="/forgot-password" className="font-bold text-gold">Forgot Password?</Link>)}            </div>
             <button className="rounded-full bg-temple px-7 py-3 font-extrabold text-white shadow-lg transition hover:-translate-y-0.5">
               {isLogin ? "Login" : otpSent ? "Verify OTP & Create Account" : "Send OTP"}
             </button>

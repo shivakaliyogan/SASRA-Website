@@ -1,6 +1,25 @@
+"use client";
+
+import { useState } from "react";
 import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
 
 export default function ContactSection() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <section id="contact" className="section bg-white dark:bg-stone-950">
       <div className="container-x grid gap-8 lg:grid-cols-[1fr_1fr]">
@@ -19,12 +38,51 @@ export default function ContactSection() {
         </div>
         <form className="glass rounded-2xl p-6">
           <div className="grid gap-4">
-            <input placeholder="Name" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
-            <input type="email" placeholder="Email" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
-            <input placeholder="Phone Number" className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
-            <textarea placeholder="Message" rows={6} className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900" />
+            <input
+              name="name"
+              placeholder="Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900"
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900"
+            />
+
+            <input
+              name="phone"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleChange}
+              className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900"
+            />
+
+            <textarea
+              name="message"
+              placeholder="Message"
+              rows={6}
+              value={formData.message}
+              onChange={handleChange}
+              className="rounded-xl border border-gold/30 bg-white/80 px-4 py-3 dark:bg-stone-900"
+            />
           </div>
-          <button className="mt-5 rounded-full bg-temple px-7 py-3 font-bold text-white">Send Message</button>
+
+          <button
+            type="submit"
+            disabled={!formData.message.trim()}
+            className={`mt-5 rounded-full bg-temple px-7 py-3 font-bold text-white ${!formData.message.trim()
+                ? "cursor-not-allowed opacity-50"
+                : ""
+              }`}
+          >
+            Send Message
+          </button>
         </form>
       </div>
     </section>

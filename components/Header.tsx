@@ -6,11 +6,14 @@ import { ArrowLeft, Bell, ChevronDown, Menu, Moon, Sun, UserCircle, X } from "lu
 import Logo from "@/components/Logo";
 import { navItems } from "@/lib/data";
 import { cn, formatDateTime } from "@/lib/utils";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
   const [profile, setProfile] = useState(false);
-const [notifications, setNotifications] = useState(false);  const [now, setNow] = useState<Date | null>(null);
+  const [notifications, setNotifications] = useState(false); const [now, setNow] = useState<Date | null>(null);
   const [active, setActive] = useState("home");
   const [loggedIn, setLoggedIn] = useState(false);
   const { dark, toggleTheme } = useTheme();
@@ -43,38 +46,38 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
   }, []);
 
   useEffect(() => {
-  const onScroll = () => {
-    const sections = navItems
-      .map(([, id]) => document.getElementById(id))
-      .filter(Boolean);
+    const onScroll = () => {
+      const sections = navItems
+        .map(([, id]) => document.getElementById(id))
+        .filter(Boolean);
 
-    let currentSection = "home";
+      let currentSection = "home";
 
-    sections.forEach((section) => {
-      const rect = section!.getBoundingClientRect();
+      sections.forEach((section) => {
+        const rect = section!.getBoundingClientRect();
 
-      if (rect.top <= 150 && rect.bottom >= 150) {
-        currentSection = section!.id;
-      }
-    });
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          currentSection = section!.id;
+        }
+      });
 
-    setActive(currentSection);
-  };
+      setActive(currentSection);
+    };
 
-  window.addEventListener("scroll", onScroll);
-  onScroll();
+    window.addEventListener("scroll", onScroll);
+    onScroll();
 
-  return () => {
-    window.removeEventListener("scroll", onScroll);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
   const nav = (
     <nav className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-1" aria-label="Primary">
       {navItems.map(([label, id]) => (
         <a
           key={id}
-          href={ id === "books"? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
+          href={id === "books" ? "/books" : id === "receipts" ? "/receipts" : `/#${id}`}
           onClick={() => setOpen(false)}
           className={cn(
             "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold",
@@ -99,18 +102,28 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
         </div>
         <div className="flex items-center justify-between gap-2 lg:justify-end">
 
-                    <button
-            type="button"
-            onClick={() => {
-              if (window.history.length > 1) window.history.back();
-              else window.location.href = "/";
-            }}
-            className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 transition hover:bg-gold hover:text-white dark:bg-white/10"
-            aria-label="Go back"
-            title="Back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
+          {pathname !== "/" && (
+            <button
+              type="button"
+              onClick={() => {
+                if (pathname === "/login") {
+                  router.push("/");
+                  return;
+                }
+
+                if (window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push("/");
+                }
+              }}
+              className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 transition hover:bg-gold hover:text-white dark:bg-white/10"
+              aria-label="Go back"
+              title="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
 
 
           <button
@@ -118,27 +131,32 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
             onClick={toggleTheme}
             className="grid h-10 w-10 place-items-center rounded-full bg-gold text-white"
             aria-label="Toggle dark mode">
-           {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
-             title="Notifications"
-              className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 dark:bg-white/10"
-              aria-label="Temple bell sound"> 
+            title="Notifications"
+            className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 dark:bg-white/10"
+            aria-label="Temple bell sound">
             <Bell className="h-5 w-5" />
           </button>
           <div className="relative">
-          <button
-            title="Profile"
-            onClick={() => setProfile((v) => !v)}
-            className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
-            aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
+            <button
+              title="Profile"
+              onClick={() => setProfile((v) => !v)}
+              className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
+              aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
               <ChevronDown className="h-4 w-4" />
             </button>
             {profile && (
               <div className="absolute right-0 mt-3 w-48 rounded-2xl bg-white p-2 shadow-2xl dark:bg-stone-900" role="menu">
                 {!loggedIn ? (
                   <>
-                    <a href="/login" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Login</a>
+                    <button
+                      onClick={() => router.replace("/login")}
+                      className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10"
+                    >
+                      Login
+                    </button>
                     <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Sign Up</a>
                   </>
                 ) : (

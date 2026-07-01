@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, Bell, Download, ImageUp, LockKeyhole, MapPinned, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
 import { adminModules, adminStats, heroSlides } from "@/lib/data";
 import { permissions, roleLabels, type AdminRole } from "@/lib/permissions";
@@ -277,8 +278,7 @@ export default function AdminDashboard() {
             <input type="password" placeholder="Password" className="mt-4 w-full rounded-xl border border-gold/30 px-4 py-3" />
             <label className="mt-4 flex items-center gap-2 text-sm"><input type="checkbox" /> OTP verification enabled</label>
             <button className="mt-6 w-full rounded-full bg-temple px-6 py-3 font-bold text-white">Sign In</button>
-            <button type="button" className="mt-4 text-sm font-semibold text-gold">Forgot Password?</button>
-          </form>
+            <Link href="/admin/forgot-password" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">Forgot Password?</Link> </form>
         </div>
       </main>
     );
