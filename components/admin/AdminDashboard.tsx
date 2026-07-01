@@ -1058,7 +1058,7 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
                 <input
                   type="checkbox"
                   checked={bookingsEnabled}
-                  onChange={(e) => setBookingsEnabled(e.checked)}
+                  onChange={(e) => setBookingsEnabled(e.target.checked)}
                   className="h-5 w-5 accent-gold cursor-pointer"
                 />
                 <div>
@@ -1071,7 +1071,7 @@ function ManagementPanel({ panel }: Readonly<{ panel: string }>) {
                 <input
                   type="checkbox"
                   checked={donationsEnabled}
-                  onChange={(e) => setDonationsEnabled(e.checked)}
+                  onChange={(e) => setDonationsEnabled(e.target.checked)}
                   className="h-5 w-5 accent-gold cursor-pointer"
                 />
                 <div>

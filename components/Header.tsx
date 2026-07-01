@@ -56,12 +56,12 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
           }
         } catch (e) {}
       }
-      setWelcomeText(t("header.welcome"));
+      setWelcomeText("Welcome to Sri Adhinarayana Swamy Rajayogashramam");
     };
     syncSettings();
     window.addEventListener("sasra-settings-updated", syncSettings);
     return () => window.removeEventListener("sasra-settings-updated", syncSettings);
-  }, [language, t]);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.pathname === "/profile") {
@@ -103,10 +103,10 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
           "rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-gold/15 hover:text-temple dark:hover:text-gold flex items-center gap-1.5 whitespace-nowrap",
           active === "profile" && "bg-gold text-white shadow-lg shadow-amber-300/30"
         )}
-        title={t("header.profile")}
+        title="My Profile"
       >
         <UserCircle className="h-6 w-6" />
-        <span className="lg:hidden">{t("header.profile")}</span>
+        <span className="lg:hidden">My Profile</span>
       </a>
       {navItems.map(([label, id]) => (
         <a
@@ -130,11 +130,7 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
         <Logo />
         <div className="min-w-0 overflow-hidden rounded-full border border-gold/30 bg-white/70 px-4 py-2 text-center text-sm dark:bg-white/10">
           <div className="marquee whitespace-nowrap font-semibold text-temple dark:text-gold">
-<<<<<<< HEAD
             {welcomeText}
-=======
-            Welcome to Sri Adhinarayana Swamy Rajayogashramam
->>>>>>> 8c1cb80c4ecc65687d3b0e06b25d65c5065c5271
           </div>
           <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
@@ -183,10 +179,9 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
                     <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Sign Up</a>
                   </>
                 ) : (
-<<<<<<< HEAD
                   <>
                     <a href="/profile" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10" onClick={() => setProfile(false)}>
-                      {t("header.profile")}
+                        My Profile
                     </a>
                     <button
                       type="button"
@@ -199,22 +194,9 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
                       }}
                       className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10 text-red-500 border-t border-amber-50 dark:border-stone-800 mt-1 pt-2"
                     >
-                      {t("header.logout")}
+                      Logout
                     </button>
                   </>
-=======
-                  <button
-                    type="button"
-                    onClick={() => {
-                      localStorage.removeItem("sasra-user-logged-in");
-                      window.dispatchEvent(new Event("sasra-auth-changed"));
-                      setProfile(false);
-                    }}
-                    className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10"
-                  >
-                    Logout
-                  </button>
->>>>>>> 8c1cb80c4ecc65687d3b0e06b25d65c5065c5271
                 )}
               </div>
             )}
