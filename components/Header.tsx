@@ -1,9 +1,8 @@
 "use client";
 
 import { useTheme } from "@/components/ThemeContext";
-import { useLanguage } from "@/components/LanguageContext";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Bell, ChevronDown, Globe2, Menu, Moon, Sun, UserCircle, X } from "lucide-react";
+import { ArrowLeft, Bell, ChevronDown, Menu, Moon, Sun, UserCircle, X } from "lucide-react";
 import Logo from "@/components/Logo";
 import { navItems } from "@/lib/data";
 import { cn, formatDateTime } from "@/lib/utils";
@@ -15,7 +14,7 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
   const [active, setActive] = useState("home");
   const [loggedIn, setLoggedIn] = useState(false);
   const { dark, toggleTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+
 
   useEffect(() => {
     setNow(new Date());
@@ -82,7 +81,7 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
             active === id && "bg-gold text-white shadow-lg shadow-amber-300/30"
           )}
         >
-          {t(`nav.${id}`) || label}
+          {label}
         </a>
       ))}
     </nav>
@@ -94,9 +93,9 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
         <Logo />
         <div className="min-w-0 overflow-hidden rounded-full border border-gold/30 bg-white/70 px-4 py-2 text-center text-sm dark:bg-white/10">
           <div className="marquee whitespace-nowrap font-semibold text-temple dark:text-gold">
-            {t("header.welcome")}
+            Welcome to Sri Adhinarayana Swamy Rajayogashramam
           </div>
-          <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : t("header.loadingTime")}</time>
+          <time className="block text-xs text-stone-600 dark:text-stone-300">{now ? formatDateTime(now) : "Loading time..."}</time>
         </div>
         <div className="flex items-center justify-between gap-2 lg:justify-end">
 
@@ -108,21 +107,12 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
             }}
             className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 transition hover:bg-gold hover:text-white dark:bg-white/10"
             aria-label="Go back"
-            title={t("header.back")}
+            title="Back"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
 
-          <label
-            title="Select Language"
-            className="relative flex items-center gap-2 rounded-full border border-gold/30 bg-white/70 px-3 py-2 text-sm dark:bg-white/10">
-            <Globe2 className="h-4 w-4" />
-            <select value={language} onChange={(event) => setLanguage(event.target.value as "en" | "hi" | "te")} className="bg-transparent outline-none" aria-label="Language selector">
-              <option value="en">English</option>
-              <option value="hi">Hindi</option>
-              <option value="te">Telugu</option>
-            </select>
-          </label>
+
           <button
             title={dark ? "Light Mode" : "Dark Mode"}
             onClick={toggleTheme}
@@ -131,14 +121,14 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
            {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
-             title={t("header.notifications")}
+             title="Notifications"
               className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 bg-white/70 dark:bg-white/10"
               aria-label="Temple bell sound"> 
             <Bell className="h-5 w-5" />
           </button>
           <div className="relative">
           <button
-            title={t("header.profile")}
+            title="Profile"
             onClick={() => setProfile((v) => !v)}
             className="flex items-center gap-1 rounded-full bg-temple px-3 py-2 text-white"
             aria-haspopup="menu">              <UserCircle className="h-5 w-5" />
@@ -148,8 +138,8 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
               <div className="absolute right-0 mt-3 w-48 rounded-2xl bg-white p-2 shadow-2xl dark:bg-stone-900" role="menu">
                 {!loggedIn ? (
                   <>
-                    <a href="/login" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">{t("header.login")}</a>
-                    <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">{t("header.signup")}</a>
+                    <a href="/login" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Login</a>
+                    <a href="/signup" className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10">Sign Up</a>
                   </>
                 ) : (
                   <button
@@ -161,14 +151,14 @@ const [notifications, setNotifications] = useState(false);  const [now, setNow] 
                     }}
                     className="block w-full rounded-xl px-4 py-2 text-left text-sm hover:bg-amber-50 dark:hover:bg-white/10"
                   >
-                    {t("header.logout")}
+                    Logout
                   </button>
                 )}
               </div>
             )}
           </div>
           <button
-            title={open ? t("header.closeMenu") : t("header.openMenu")}
+            title={open ? "Close Menu" : "Open Menu"}
             onClick={() => setOpen((v) => !v)}
             className="grid h-10 w-10 place-items-center rounded-full border border-gold/30 lg:hidden"
             aria-label="Open menu">            {open ? <X /> : <Menu />}

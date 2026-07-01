@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import ThemeSync from "@/components/ThemeSync";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeContext";
-import { LanguageProvider } from "@/components/LanguageContext";
-
 export const metadata: Metadata = {
   title: "Sri Adhinarayana Swamy Rajayogashramam",
   description:
@@ -37,12 +35,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <LanguageProvider>
           <ThemeProvider>
             <ThemeSync />
             {children}
           </ThemeProvider>
-        </LanguageProvider>
       </body>
     </html>
   );

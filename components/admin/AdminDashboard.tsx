@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Bell, Download, Globe2, ImageUp, LockKeyhole, MapPinned, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
+import { ArrowLeft, Bell, Download, ImageUp, LockKeyhole, MapPinned, Menu, Moon, Search, ShieldCheck, Sun, UserPlus, Users, X } from "lucide-react";
 import { adminModules, adminStats, heroSlides } from "@/lib/data";
 import { permissions, roleLabels, type AdminRole } from "@/lib/permissions";
-import { useLanguage } from "@/components/LanguageContext";
 
 const chartData = [
   { month: "Jan", donations: 18, users: 32 },
@@ -250,7 +249,7 @@ export default function AdminDashboard() {
   const [selectedRole, setSelectedRole] = useState<AdminRole>("admin");
   const [adminMessage, setAdminMessage] = useState("");
   const [logoMessage, setLogoMessage] = useState("");
-  const { language, setLanguage, t } = useLanguage();
+
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -264,7 +263,7 @@ export default function AdminDashboard() {
   if (!loggedIn) {
     return (
       <main className="min-h-screen bg-lotus p-4 dark:bg-stone-950">
-        <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="fixed left-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-gold/30 bg-white/90 text-temple shadow-lg transition hover:bg-gold hover:text-white dark:bg-stone-900 dark:text-gold" aria-label={t("admin.back")} title={t("admin.back")}><ArrowLeft className="h-5 w-5" /></button>
+        <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="fixed left-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-gold/30 bg-white/90 text-temple shadow-lg transition hover:bg-gold hover:text-white dark:bg-stone-900 dark:text-gold" aria-label="Back" title="Back"><ArrowLeft className="h-5 w-5" /></button>
         <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-8 lg:grid-cols-2">
           <div>
             <p className="font-semibold uppercase tracking-[0.28em] text-gold">Secure Admin</p>
@@ -315,14 +314,13 @@ export default function AdminDashboard() {
               <div>
                 <div className="flex items-center gap-3">
                   <button onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow lg:hidden dark:bg-white/10 dark:text-gold" aria-label="Open admin menu"><Menu className="h-5 w-5" /></button>
-                  <p className="text-sm font-semibold text-gold">{t("admin.superDashboard")}</p>
+                  <p className="text-sm font-semibold text-gold">Super Admin Dashboard</p>
                 </div>
                 <h2 className="text-2xl font-bold">Sri Adhinarayana Swamy Rajayogashramam</h2>
               </div>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow transition hover:bg-gold hover:text-white dark:bg-white/10 dark:text-gold" aria-label={t("admin.back")} title={t("admin.back")}><ArrowLeft className="h-5 w-5" /></button>
-                <label className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm dark:bg-white/10" title="Select Language"><Globe2 className="h-4 w-4 text-gold" /><select value={language} onChange={(event) => setLanguage(event.target.value as "en" | "hi" | "te")} className="bg-transparent outline-none" aria-label="Language selector"><option value="en">English</option><option value="hi">Hindi</option><option value="te">Telugu</option></select></label>
-                <div className="hidden items-center rounded-full bg-white px-4 py-2 dark:bg-white/10 md:flex"><Search className="h-4 w-4 text-gold" /><input placeholder={t("admin.search")} className="ml-2 bg-transparent text-sm outline-none" /></div>
+                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"} className="grid h-10 w-10 place-items-center rounded-full bg-white text-temple shadow transition hover:bg-gold hover:text-white dark:bg-white/10 dark:text-gold" aria-label="Back" title="Back"><ArrowLeft className="h-5 w-5" /></button>
+                <div className="hidden items-center rounded-full bg-white px-4 py-2 dark:bg-white/10 md:flex"><Search className="h-4 w-4 text-gold" /><input placeholder="Search records" className="ml-2 bg-transparent text-sm outline-none" /></div>
                 <button className="grid h-10 w-10 place-items-center rounded-full bg-white dark:bg-white/10"><Bell className="h-5 w-5" /></button>
                 <button onClick={() => setDark((v) => !v)} className="grid h-10 w-10 place-items-center rounded-full bg-gold text-white">{dark ? <Sun /> : <Moon />}</button>
               </div>

@@ -6,7 +6,7 @@ export const navItems = [
   ["Spiritual Programs", "spiritual-programs"],
   ["Temples", "temples"],
   ["Festivals", "festivals"],
-  ["Pooja Booking", "programs"],
+  ["Pooja Calendar", "programs"],
   ["Gallery", "gallery"],
   ["Donations", "donations"],
   ["Books", "books"],
